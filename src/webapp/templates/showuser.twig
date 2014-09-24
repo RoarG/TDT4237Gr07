@@ -1,0 +1,33 @@
+{% extends 'base.twig' %}
+
+{% block content %}
+
+<h2>User</h2>
+
+{{ flash.info|raw }} <br />
+{{ flash.error|raw }} <br />
+
+{% if user %}
+    <table>
+        <tr>
+            <th>Id</th>
+            <th>Username</th>
+            <th>Hash</th>
+            <th>Email</th>
+            <th>Bio</th>
+            <th>Age</th>
+        </tr>
+            <tr>
+            <td>{{ user.id|raw }}</td>
+            <td>{{ user.username|raw }}</td>
+            <td><!-- {{ user.passwordhash|raw }} -->********************************(not shown)</td>
+            <td>{{ user.email|raw }}</td>
+            <td>{{ user.bio|raw }}</td>
+            <td>{{ user.age|raw }}</td>
+        </tr>
+    </table>
+{% else %}
+    Could not find a user with username "{{ username|raw }}".
+{% endif %}
+
+{% endblock %}

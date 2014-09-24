@@ -1,0 +1,32 @@
+{% extends 'base.twig' %}
+
+{% block content %}
+
+    {% if movie %}
+        <h2>{{ movie.name }}</h2>
+
+        <img src="/images/movies/{{ movie.imageUrl }}">
+
+        {% for review in reviews %}
+            <div class="review">
+                <b>Author:</b> {{ review.author }}
+                <pre> {{ review.text }}</pre>
+            </div>
+        {% else %}
+            <br>
+            Be the first one to write a review of this movie.
+            <br>
+            <br>
+        {% endfor %}
+
+        <form action="" method="POST">
+            <b>Author:</b><input type="text" name="author"><br>
+
+            <textarea cols="40" rows="10" name="text"></textarea>
+            <input type="submit" name="submit" value="Save review">
+        </form>
+    {% else %}
+        Unable to find that movie.
+    {% endif %}
+
+{% endblock %}

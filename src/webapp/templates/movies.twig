@@ -1,0 +1,15 @@
+{% extends 'base.twig' %}
+
+{% block content %}
+
+    <h2>Movies</h2>
+
+    {% for movie in movies %}
+        <div class="moviebox">
+            <a href="/movies/{{ movie.id }}">{{ movie.name }}<img src="/images/movies/{{ movie.imageUrl }}"></a>
+        </div>
+    {% else %}
+        No movies has been added yet.
+    {% endfor %}
+
+{% endblock %}
