@@ -10,11 +10,26 @@ class Hash
 
     static function make($plaintext)
     {
-        return hash('sha512', $plaintext);
+    	/**
+    	 * Forklaring til password_hash funksjonen
+    	 * We just want to hash our password using the current DEFAULT algorithm.
+    	 * This is presently BCRYPT, and will produce a 60 character result.
+    	 *
+    	 * Beware that DEFAULT may change over time, so you would want to prepare
+    	 * By allowing your storage to expand past 60 characters (255 would be good)
+    	 */
+    	
+    	/**
+    	 * Forstår det som at password_hash genererer en random salt og itererer hash
+    	 * Må endre database variabel pass slik at den kan støtte flere tegn (satt den til 100)
+    	 */
+    	return password_hash($plaintext, PASSWORD_DEFAULT);
+        //return hash('sha512', $plaintext);
     }
 
     static function check($plaintext, $hash)
     {
-        return self::make($plaintext) === $hash;
+        return password_verify($plaintext, $hash);
+        //return self::make($plaintext) === $hash;
     }
 }
