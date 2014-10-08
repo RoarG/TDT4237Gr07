@@ -164,21 +164,20 @@ class User
      * @return mixed User or null if not found.
      */
     static function findByUser($username)
-    {
-        $query = sprintf(self::FIND_BY_NAME, $username);
-        $result = self::$app->db->query($query, \PDO::FETCH_ASSOC);
+    {   
+        $stmt = self::FIND_BY_NAME->execute(array($username));
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $row = $result->fetch();
 
         if($row == false) {
             return null;
         }
-
         return User::makeFromSql($row);
     }
 
     static function deleteByUsername($username)
     {
-        return self::DELETE_USER->execute($username);
+        return self::DELETE_USER->execute(array($username));
     }
 
     static function all()
