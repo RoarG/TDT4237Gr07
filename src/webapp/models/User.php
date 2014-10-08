@@ -6,9 +6,9 @@ use tdt4237\webapp\Hash;
 
 class User
 {
-    const INSERT_QUERY = prepare("INSERT INTO users(user, pass, email, age, bio, isadmin) VALUES(?, ?, ?, ?, ?, ?)");
-    const UPDATE_QUERY = prepare("UPDATE users SET email=?, age=?, bio=?, isadmin=? WHERE id=?");
-    const FIND_BY_NAME = prepare("SELECT * FROM users WHERE user=?");
+    const INSERT_QUERY = self::$app->db->prepare("INSERT INTO users(user, pass, email, age, bio, isadmin) VALUES(?, ?, ?, ?, ?, ?)");
+    const UPDATE_QUERY = self::$app->db->prepare("UPDATE users SET email=?, age=?, bio=?, isadmin=? WHERE id=?");
+    const FIND_BY_NAME = self::$app->db->prepare("SELECT * FROM users WHERE user=?");
 
     const MIN_USER_LENGTH = 3;
 
