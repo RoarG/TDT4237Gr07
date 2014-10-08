@@ -9,7 +9,7 @@ $app = new \Slim\Slim([
 
 $view = $app->view();
 $view->parserExtensions = array(
-    new \Slim\Views\TwigExtension(),  #iohoiu
+    new \Slim\Views\TwigExtension(),
 );
 
 try {
