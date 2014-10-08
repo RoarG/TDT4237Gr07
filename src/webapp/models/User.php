@@ -48,28 +48,14 @@ class User
     /**
      * Insert or update a user object to db.
      */
-    function save()
-    {
+    
+    function save() {
         if ($this->id === null) {
-            $query = sprintf(self::INSERT_QUERY,
-                $this->user,
-                $this->pass,
-                $this->email,
-                $this->age,
-                $this->bio,
-                $this->isAdmin
-            );
-        } else {
-            $query = sprintf(self::UPDATE_QUERY,
-                $this->email,
-                $this->age,
-                $this->bio,
-                $this->isAdmin,
-                $this->id
-            );
+            INSERT_QUERY->execute(array($this->user, $this->pass, $this->email, $this->age, $this->bio, $this->admin));
         }
-
-        return self::$app->db->exec($query);
+        else {
+            UPDATE_QUERY->execute(array($this->email, $this->age, $this->bio, $this->isAdmin, $this->id));
+        }
     }
 
     function getId()
