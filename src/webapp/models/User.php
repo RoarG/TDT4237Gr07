@@ -10,6 +10,7 @@ class User
     const UPDATE_QUERY = self::$app->db->prepare("UPDATE users SET email=?, age=?, bio=?, isadmin=? WHERE id=?");
     const FIND_BY_NAME = self::$app->db->prepare("SELECT * FROM users WHERE user=?");
     const DELETE_USER = self::$app->db->prepare("DELETE * FROM users WHERE user=?");
+    const ALL = self::$app->db->prepare("SELECT * FROM users");
 
     const MIN_USER_LENGTH = 3;
 
@@ -165,9 +166,8 @@ class User
      */
     static function findByUser($username)
     {   
-        $stmt = self::FIND_BY_NAME->execute(array($username));
-        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $row = $result->fetch();
+        $result = self::FIND_BY_NAME->execute(array($username));
+        $row = $result->fetch(PDO::FETCH_ASSOC);
 
         if($row == false) {
             return null;
@@ -182,9 +182,7 @@ class User
 
     static function all()
     {
-        $query = "SELECT * FROM users";
-        $results = self::$app->db->query($query);
-
+        $results = self::ALL->execute();
         $users = [];
 
         foreach ($results as $row) {
