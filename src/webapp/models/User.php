@@ -9,6 +9,7 @@ class User
     const INSERT_QUERY = self::$app->db->prepare("INSERT INTO users(user, pass, email, age, bio, isadmin) VALUES(?, ?, ?, ?, ?, ?)");
     const UPDATE_QUERY = self::$app->db->prepare("UPDATE users SET email=?, age=?, bio=?, isadmin=? WHERE id=?");
     const FIND_BY_NAME = self::$app->db->prepare("SELECT * FROM users WHERE user=?");
+    const DELETE_USER = self::$app->db->prepare("DELETE * FROM users WHERE user=?");
 
     const MIN_USER_LENGTH = 3;
 
@@ -177,8 +178,7 @@ class User
 
     static function deleteByUsername($username)
     {
-        $query = "DELETE FROM users WHERE user='$username' ";
-        return self::$app->db->exec($query);
+        return self::DELETE_USER->execute($username);
     }
 
     static function all()
