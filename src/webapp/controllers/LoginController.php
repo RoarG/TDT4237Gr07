@@ -31,6 +31,7 @@ class LoginController extends Controller
         if (Auth::checkCredentials($user, $pass)) {
             $_SESSION['user'] = $user;
 
+
             $isAdmin = Auth::user()->isAdmin();
 
             if ($isAdmin) {
@@ -39,6 +40,8 @@ class LoginController extends Controller
                 setcookie("isadmin", "no");
             }
 
+            // Forsøk på og regenerere session id^^
+            session_regenerate_id();
             $this->app->flash('info', "You are now successfully logged in as $user.");
             $this->app->redirect('/');
         } else {
