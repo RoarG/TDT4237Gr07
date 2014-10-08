@@ -6,9 +6,9 @@ use tdt4237\webapp\Hash;
 
 class User
 {
-    const INSERT_QUERY = "INSERT INTO users(user, pass, email, age, bio, isadmin) VALUES('%s', '%s', '%s' , '%s' , '%s', '%s')";
-    const UPDATE_QUERY = "UPDATE users SET email='%s', age='%s', bio='%s', isadmin='%s' WHERE id='%s'";
-    const FIND_BY_NAME = "SELECT * FROM users WHERE user='%s'";
+    const INSERT_QUERY = prepare("INSERT INTO users(user, pass, email, age, bio, isadmin) VALUES(?, ?, ?, ?, ?, ?)");
+    const UPDATE_QUERY = prepare("UPDATE users SET email=?, age=?, bio=?, isadmin=? WHERE id=?");
+    const FIND_BY_NAME = prepare("SELECT * FROM users WHERE user=?");
 
     const MIN_USER_LENGTH = 3;
 
