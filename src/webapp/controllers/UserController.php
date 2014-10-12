@@ -91,6 +91,16 @@ class UserController extends Controller
             $bio = $request->post('bio');
             $age = $request->post('age');
 
+            //Sanitize inputs
+            $email = strip_tags($email);
+            $bio   = strip_tags($bio);
+            $age   = strip_tags($age);
+
+            //Convert special characters to HTML entities
+            $email = htmlspecialchars($email);
+            $bio   = htmlspecialchars($bio);
+            $age   = htmlspecialchars($age);
+
             $user->setEmail($email);
             $user->setBio($bio);
             $user->setAge($age);
