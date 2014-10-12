@@ -30,6 +30,9 @@ class UserController extends Controller
         $username = $request->post('user');
         $pass = $request->post('pass');
 
+        // Sanitize username field, but not password as the password is never included in an HTML, and the user should be able to set the password to whatever he or she wants.
+        $username = strip_tags($username);
+
         $hashed = Hash::make($pass);
 
         $user = User::makeEmpty();
@@ -41,7 +44,7 @@ class UserController extends Controller
         if (sizeof($validationErrors) > 0) {
             $errors = join("<br>\n", $validationErrors);
             $this->app->flashNow('error', $errors);
-            $this->render('newUserForm.twig', ['username' => $username]);
+            $this->render('newUserForm.twig', ['username' => htmlspecialchars($username, ENT_QUOTES, 'UTF-8')]);
         } else {
             $user->save();
             $this->app->flash('info', 'Thanks for creating a user. Now log in.');
