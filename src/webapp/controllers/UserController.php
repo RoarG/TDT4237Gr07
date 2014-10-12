@@ -100,9 +100,9 @@ class UserController extends Controller
             $age   = strip_tags($age);
 
             //Convert special characters to HTML entities
-            $email = htmlspecialchars($email);
-            $bio   = htmlspecialchars($bio);
-            $age   = htmlspecialchars($age);
+            $email = htmlspecialchars($email, ENT_QUOTES, 'UTF-8');
+            $bio   = htmlspecialchars($bio,   ENT_QUOTES, 'UTF-8');
+            $age   = htmlspecialchars($age,   ENT_QUOTES, 'UTF-8');
 
             $user->setEmail($email);
             $user->setBio($bio);
