@@ -66,11 +66,13 @@ class UserController extends Controller
 
     function show($username)
     {
+        $username = strip_tags($username);
+
         $user = User::findByUser($username);
 
         $this->render('showuser.twig', [
             'user' => $user,
-            'username' => $username
+            'username' => htmlspecialchars($username, ENT_QUOTES, 'UTF-8')
         ]);
     }
 
