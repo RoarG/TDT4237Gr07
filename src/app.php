@@ -3,6 +3,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 $app = new \Slim\Slim([
     'templates.path' => __DIR__.'/webapp/templates/',
+    'cookie.lifetime' => '1 minutes',
     'debug' => false,
     'view' => new \Slim\Views\Twig()
 ]);
@@ -56,5 +57,8 @@ $app->get('/admin/delete/:username', $ns . 'AdminController:delete');
 $app->get('/movies', $ns . 'MovieController:index')->name('movies');
 $app->get('/movies/:movieid', $ns . 'MovieController:show');
 $app->post('/movies/:movieid', $ns . 'MovieController:addReview');
+
+// Cookie Lifetime
+$app->config('cookies.lifetime', '1 minutes');
 
 return $app;
