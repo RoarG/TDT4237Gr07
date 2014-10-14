@@ -13,8 +13,15 @@ class Hash
         return hash('sha512', $plaintext);
     }
 
+    //Time constant compare
     static function check($plaintext, $hash)
     {
-        return self::make($plaintext) === $hash;
+        $plaintext = self::make($plaintext);
+        $diff = strlen($plaintext) ^ strlen($hash);
+        for ($i=0; $i < strlen($plaintext) && $i < strlen($hash) ; $i++) {
+            $diff |= ord($plaintext[$i]) ^ ord($hash[$i]);
+        }
+        return $diff === 0;
     }
 }
+
