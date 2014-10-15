@@ -5,14 +5,8 @@ namespace tdt4237\webapp\models;
 use tdt4237\webapp\Hash;
 
 class User
-{
-    const INSERT_QUERY = self::$app->db->prepare("INSERT INTO users(user, pass, email, age, bio, isadmin) VALUES(?, ?, ?, ?, ?, ?)");
-    const UPDATE_QUERY = self::$app->db->prepare("UPDATE users SET email=?, age=?, bio=?, isadmin=? WHERE id=?");
-    const FIND_BY_NAME = self::$app->db->prepare("SELECT * FROM users WHERE user=?");
-    const DELETE_USER = self::$app->db->prepare("DELETE * FROM users WHERE user=?");
-    const ALL = self::$app->db->prepare("SELECT * FROM users");
-
-    const MIN_USER_LENGTH = 3;
+{	
+	const MIN_USER_LENGTH = 3;
 
     protected $id = null;
     protected $user;
@@ -53,10 +47,12 @@ class User
     
     function save() {
         if ($this->id === null) {
-            INSERT_QUERY->execute(array($this->user, $this->pass, $this->email, $this->age, $this->bio, $this->admin));
+        	$stmt = self::$app->db->prepare("INSERT INTO users(user, pass, email, age, bio, isadmin) VALUES(?, ?, ?, ?, ?, ?)");
+            $stmt->execute(array($this->user, $this->pass, $this->email, $this->age, $this->bio, $this->isAdmin));
         }
         else {
-            UPDATE_QUERY->execute(array($this->email, $this->age, $this->bio, $this->isAdmin, $this->id));
+        	$stmt = self::$app->db->prepare("UPDATE users SET email=?, age=?, bio=?, isadmin=? WHERE id=?");
+            $stmt->execute(array($this->email, $this->age, $this->bio, $this->isAdmin, $this->id));
         }
     }
 
@@ -166,8 +162,9 @@ class User
      */
     static function findByUser($username)
     {   
-        $result = self::FIND_BY_NAME->execute(array($username));
-        $row = $result->fetch(PDO::FETCH_ASSOC);
+    	$stmt = self::$app->db->prepare("SELECT * FROM users WHERE user=?");
+        $stmt->execute(array($username));
+        $row = $stmt->fetch();
 
         if($row == false) {
             return null;
@@ -177,12 +174,15 @@ class User
 
     static function deleteByUsername($username)
     {
-        return self::DELETE_USER->execute(array($username));
+    	$stmt = self::$app->db->prepare("DELETE * FROM users WHERE user=?");
+        return $stmt->execute(array($username));
     }
 
     static function all()
-    {
-        $results = self::ALL->execute();
+    {	
+    	$stmt = self::$app->db->prepare("SELECT * FROM users");
+        $stmt->execute();
+        $results = $stmt->fetchAll();
         $users = [];
 
         foreach ($results as $row) {
