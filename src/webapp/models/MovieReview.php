@@ -4,8 +4,6 @@ namespace tdt4237\webapp\models;
 
 class MovieReview
 {
-    const SELECT_BY_ID = "SELECT * FROM moviereviews WHERE id = %s";
-
     private $id = null;
     private $movieId;
     private $author;
@@ -63,18 +61,13 @@ class MovieReview
      */
     function save()
     {
-        $movieId = $this->movieId;
-        $author = $this->author;
-        $text = $this->text;
-
         if ($this->id === null) {
-            $query = "INSERT INTO moviereviews (movieid, author, text) "
-                   . "VALUES ('$movieId', '$author', '$text')";
+            $stmt = self::$app->db->prepare("INSERT INTO moviereviews (movieid, author, text) VALUES (?, ?, ?)");
         } else {
             // TODO: Update moviereview here
         }
 
-        return static::$app->db->exec($query);
+        return $stmt->execute(array($this->movieId, $this->author, $this->text));
     }
 
     static function makeEmpty()
@@ -87,8 +80,9 @@ class MovieReview
      */
     static function findByMovieId($id)
     {
-        $query = "SELECT * FROM moviereviews WHERE movieid = $id";
-        $results = self::$app->db->query($query);
+        $stmt = self::$app->db->prepare("SELECT * FROM moviereviews WHERE movieid = ?");
+        $stmt->execute(array($id));
+        $results = $stmt->fetchAll();
 
         $reviews = [];
 
