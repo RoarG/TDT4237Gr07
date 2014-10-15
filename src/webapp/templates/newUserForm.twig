@@ -10,9 +10,11 @@
 <form action="" method="POST">
 
 <label>Username: </label>
-<input type="text" name="user" value="{{ username|raw }}"> <br />
+<input type="text" name="user" value="{{ username|raw }}" placeholder="Letters and numbers only"> <br />
 <label>Password: </label>
 <input type="password" name="pass"> <br />
 <input type="submit" name="submit" value="Create new user">
+<p>Username must be between 3 - 20 characters and may only consist of letters and numbers<br/>
+Password must be between 8 - 25 characters and contain letters, numbers (and special characters?)</p>
 </form>
 {% endblock %}

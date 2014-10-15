@@ -21,7 +21,7 @@ class Hash
     	
     	/**
     	 * Forstår det som at password_hash genererer en random salt og itererer hash
-    	 * Må endre database variabel pass slik at den kan støtte flere tegn (satt den til 100)
+    	 * Må endre database variabel pass slik at den kan støtte flere tegn (satt den til 90)
     	 */
     	return password_hash($plaintext, PASSWORD_DEFAULT);
         //return hash('sha512', $plaintext);
@@ -29,7 +29,14 @@ class Hash
 
     static function check($plaintext, $hash)
     {
-        return password_verify($plaintext, $hash);
+    	if(password_verify($plaintext, $hash)){
+        	return password_verify($plaintext, $hash);
+    	}else{
+    		if(hash('sha512', $plaintext) === $hash){
+    			return true;
+    		}		
+    		return false;
+    	}
         //return self::make($plaintext) === $hash;
     }
 }

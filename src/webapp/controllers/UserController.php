@@ -23,6 +23,22 @@ class UserController extends Controller
             $this->app->redirect('/');
         }
     }
+    
+    function validatePass($pass){
+    	$validationErrors = [];
+    	$minpass = 8;
+    	$maxpass = 25;
+    	
+    	/*Dumt å skrive inn passordfeil her?*/
+    	if(strlen($pass) < $minpass){
+    		array_push($validationErrors, "Password too short. Min length is " . $minpass);
+    	}
+    	if(strlen($pass) > $maxpass){
+    		array_push($validationErrors, " Password too long. Max length is " . $maxpass);
+    	}
+    	
+        return $validationErrors;
+    }
 
     function create()
     {
@@ -36,10 +52,12 @@ class UserController extends Controller
         $user->setUsername($username);
         $user->setHash($hashed);
 
-        $validationErrors = User::validate($user);
+        $validationError = User::validate($user);
+        $validationError2 = self::validatePass($pass);
+        $result = array_merge($validationError,$validationError2);
 
-        if (sizeof($validationErrors) > 0) {
-            $errors = join("<br>\n", $validationErrors);
+        if (sizeof($result) > 0) {
+            $errors = join("<br>\n", $result);
             $this->app->flashNow('error', $errors);
             $this->render('newUserForm.twig', ['username' => $username]);
         } else {
