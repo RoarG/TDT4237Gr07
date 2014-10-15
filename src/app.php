@@ -5,6 +5,10 @@ $app = new \Slim\Slim([
     'templates.path' => __DIR__.'/webapp/templates/',
     'cookie.lifetime' => '20 minutes',
     'debug' => false,
+    'cookies.encrypt' => true,
+    'cookies.secret_key' => 'mkdfsndkfhjeaadffgag',
+    'cookies.cipher' => MCRYPT_RIJNDAEL_256,
+    'cookies.cipher_mode' => MCRYPT_MODE_CBC,
     'view' => new \Slim\Views\Twig()
 ]);
 
