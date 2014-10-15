@@ -33,7 +33,13 @@ class Hash
         	return password_verify($plaintext, $hash);
     	}else{
     		if(hash('sha512', $plaintext) === $hash){
-    			return true;
+
+    			$plaintext = hash('sha512', $plaintext);
+                $diff = strlen($plaintext) ^ strlen($hash);
+                for ($i=0; $i < strlen($plaintext) && $i < strlen($hash) ; $i++) {
+                    $diff |= ord($plaintext[$i]) ^ ord($hash[$i]);
+                }
+                    return $diff === 0;
     		}		
     		return false;
     	}
