@@ -53,15 +53,16 @@ class UserController extends Controller
             // Create user
             $hashed = Hash::make($pass);
 
-<<<<<<< HEAD
             $user = User::makeEmpty();
             $user->setUsername($username);
             $user->setHash($hashed);
 
-            $validationErrors = User::validate($user);
+            $validationError = User::validate($user);
+            $validationError2 = self::validatePass($pass);
+            $result = array_merge($validationError,$validationError2);
 
-            if (sizeof($validationErrors) > 0) {
-                $errors = join("<br>\n", $validationErrors);
+            if (sizeof($result) > 0) {
+                $errors = join("<br>\n", $result);
                 $this->app->flashNow('error', $errors);
                 $this->render('newUserForm.twig', ['username' => htmlspecialchars($username, ENT_QUOTES, 'UTF-8')]);
             } else {
@@ -73,14 +74,6 @@ class UserController extends Controller
         else {
             // Return error
             $errors = "A username cannot contain any HTML tags or special characters";
-=======
-        $validationError = User::validate($user);
-        $validationError2 = self::validatePass($pass);
-        $result = array_merge($validationError,$validationError2);
-
-        if (sizeof($result) > 0) {
-            $errors = join("<br>\n", $result);
->>>>>>> master
             $this->app->flashNow('error', $errors);
             $this->render('newUserForm.twig', ['username' => htmlspecialchars($username, ENT_QUOTES, 'UTF-8')]);
         }
