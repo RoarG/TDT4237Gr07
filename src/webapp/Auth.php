@@ -22,6 +22,27 @@ class Auth
         return Hash::check($password, $user->getPasswordHash());
     }
 
+    static function generateToken() {
+        $token = base64_encode(openssl_random_pseudo_bytes(32));
+        return $token;
+    }
+
+    static function checkToken($token) {
+        if ($token === $_SESSION['token']) {
+            return true;
+        }
+        return false;
+    }
+
+    static function token() {
+        if (isset($_SESSION['token'])) {
+            return $_SESSION['token'];
+        }
+        else {
+            throw new \Exception('Not logged in but called Auth::token() anyway');
+        }
+    }
+
     /**
      * Check if is logged in.
      */
@@ -41,6 +62,7 @@ class Auth
     /**
      * Get currently logged in user.
      */
+
     static function user()
     {
         if (self::check()) {

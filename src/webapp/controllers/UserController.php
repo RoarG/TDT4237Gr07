@@ -87,22 +87,26 @@ class UserController extends Controller
 
         if ($this->app->request->isPost()) {
             $request = $this->app->request;
-            $email = $request->post('email');
-            $bio = $request->post('bio');
-            $age = $request->post('age');
+            if (Auth::checkToken($request->post('CSRFToken'))) {
+                $email = $request->post('email');
+                $bio = $request->post('bio');
+                $age = $request->post('age');
 
-            $user->setEmail($email);
-            $user->setBio($bio);
-            $user->setAge($age);
+                $user->setEmail($email);
+                $user->setBio($bio);
+                $user->setAge($age);
 
-            if (! User::validateAge($user)) {
-                $this->app->flashNow('error', 'Age must be between 0 and 150.');
-            } else {
-                $user->save();
-                $this->app->flashNow('info', 'Your profile was successfully saved.');
+                if (! User::validateAge($user)) {
+                    $this->app->flashNow('error', 'Age must be between 0 and 150.');
+                } else {
+                    $user->save();
+                    $this->app->flashNow('info', 'Your profile was successfully saved.');
+                }
+            }
+            else {
+                $this->app->flashNow('error', "Something is not right, are you CSRF'ing?");
             }
         }
-
-        $this->render('edituser.twig', ['user' => $user]);
+        $this->render('edituser.twig', array('user' => $user, 'token' => Auth::token()));
     }
 }

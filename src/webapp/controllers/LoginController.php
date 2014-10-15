@@ -30,6 +30,7 @@ class LoginController extends Controller
 
         if (Auth::checkCredentials($user, $pass)) {
             $_SESSION['user'] = $user;
+            $_SESSION['token'] = Auth::generateToken();
 
             $isAdmin = Auth::user()->isAdmin();
 
