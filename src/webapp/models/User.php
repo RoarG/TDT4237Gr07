@@ -175,7 +175,7 @@ class User
 
     static function deleteByUsername($username)
     {
-    	$stmt = self::$app->db->prepare("DELETE * FROM users WHERE user=?");
+    	$stmt = self::$app->db->prepare("DELETE FROM users WHERE user=?");
         return $stmt->execute(array($username));
     }
 
