@@ -23,6 +23,22 @@ class UserController extends Controller
             $this->app->redirect('/');
         }
     }
+    
+    function validatePass($pass){
+    	$validationErrors = [];
+    	$minpass = 8;
+    	$maxpass = 25;
+    	
+    	/*Dumt å skrive inn passordfeil her?*/
+    	if(strlen($pass) < $minpass){
+    		array_push($validationErrors, "Password too short. Min length is " . $minpass);
+    	}
+    	if(strlen($pass) > $maxpass){
+    		array_push($validationErrors, " Password too long. Max length is " . $maxpass);
+    	}
+    	
+        return $validationErrors;
+    }
 
     function create()
     {
@@ -37,6 +53,7 @@ class UserController extends Controller
             // Create user
             $hashed = Hash::make($pass);
 
+<<<<<<< HEAD
             $user = User::makeEmpty();
             $user->setUsername($username);
             $user->setHash($hashed);
@@ -56,6 +73,14 @@ class UserController extends Controller
         else {
             // Return error
             $errors = "A username cannot contain any HTML tags or special characters";
+=======
+        $validationError = User::validate($user);
+        $validationError2 = self::validatePass($pass);
+        $result = array_merge($validationError,$validationError2);
+
+        if (sizeof($result) > 0) {
+            $errors = join("<br>\n", $result);
+>>>>>>> master
             $this->app->flashNow('error', $errors);
             $this->render('newUserForm.twig', ['username' => htmlspecialchars($username, ENT_QUOTES, 'UTF-8')]);
         }
