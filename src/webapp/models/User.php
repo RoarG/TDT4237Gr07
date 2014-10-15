@@ -6,6 +6,7 @@ use tdt4237\webapp\Hash;
 
 class User
 {	
+	//Fjernet alle query-konstantene, da de viste seg å ikke fungere. La dem heller inn i sine respektive funksjoner
 	const MIN_USER_LENGTH = 3;
 
     protected $id = null;
