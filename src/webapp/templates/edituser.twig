@@ -16,7 +16,7 @@
         <label>Age:</label>
         <input type="text" name="age" value="{{ user.age|raw }}"> <br />
 
-        <input type="text" name="CSRFToken" value="{{ token|raw }}"> <br />
+        <input type="hidden" name="CSRFToken" value="{{ token|raw }}"> <br />
 
         <input type="submit" name="submit" value="Save profile">
     </form>
