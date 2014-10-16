@@ -3,7 +3,12 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 $app = new \Slim\Slim([
     'templates.path' => __DIR__.'/webapp/templates/',
-    'debug' => true,
+    'cookie.lifetime' => '2 minutes',
+    'debug' => false,
+    'cookies.encrypt' => true,
+    'cookies.secret_key' => 'mkdfsndkfhjeaadffgag',
+    'cookies.cipher' => MCRYPT_RIJNDAEL_256,
+    'cookies.cipher_mode' => MCRYPT_MODE_CBC,
     'view' => new \Slim\Views\Twig()
 ]);
 
@@ -23,6 +28,7 @@ try {
 }
 
 $ns ='tdt4237\\webapp\\controllers\\'; 
+
 
 // Home page at http://localhost/
 $app->get('/', $ns . 'IndexController:index');
@@ -56,5 +62,11 @@ $app->get('/admin/delete/:username', $ns . 'AdminController:delete');
 $app->get('/movies', $ns . 'MovieController:index')->name('movies');
 $app->get('/movies/:movieid', $ns . 'MovieController:show');
 $app->post('/movies/:movieid', $ns . 'MovieController:addReview');
+
+//Debug off
+$app->config('debug', false);
+
+// Cookie Lifetime
+$app->config('cookies.lifetime', '2 minutes');
 
 return $app;
