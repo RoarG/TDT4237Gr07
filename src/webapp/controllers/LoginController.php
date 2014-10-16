@@ -21,7 +21,31 @@ class LoginController extends Controller
             $this->render('login.twig', []);
         }
     }
+    
+    function forgot(){
+    	if (Auth::check()) {
+    		$username = Auth::user()->getUserName();
+    		$this->app->flash('info', 'You are already logged in as ' . $username);
+    		$this->app->redirect('/');
+    	} else {
+    			$this->render('forgotPass.twig', []);
+    	}
+    }
 
+    function reset(){
+    	$request = $this->app->request;
+    	$user = $request->post('user');
+    	$email = $request->post('email');
+
+    	if(Auth::checkEmail($user, $email)){
+    		$this->app->flashNow('error', 'Riktig!!');
+    		$this->render('resetPass.twig', []);
+    	}else{
+    		$this->app->flashNow('error', 'Incorrect user/email combination.');
+    		$this->render('forgotPass.twig', []);
+    	}
+    }
+    
     function login()
     {
         $request = $this->app->request;

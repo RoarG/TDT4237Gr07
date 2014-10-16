@@ -1,0 +1,19 @@
+{% extends 'base.twig' %}
+
+{% block content %}
+
+<h2>Reset password</h2>
+
+{{ flash.error|raw }} <br />
+
+<form action="" method="POST">
+
+<label>Validationcode: </label>
+<input type="text" name="valid"> <br />
+<label>New password: </label>
+<input type="password" name="newpass"> <br />
+<br/>
+<input type="submit" name="submit" value="Reset">
+</form>
+
+{% endblock %}

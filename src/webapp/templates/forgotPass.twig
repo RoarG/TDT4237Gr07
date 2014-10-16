@@ -1,0 +1,19 @@
+{% extends 'base.twig' %}
+
+{% block content %}
+
+<h2>Reset password</h2>
+
+{{ flash.error|raw }} <br />
+
+<form action="" method="POST">
+
+<label>Username: </label>
+<input type="text" name="user"> <br />
+<label>E-mail: </label>
+<input type="email" name="email"> <br />
+<input type="submit" name="submit" value="Send">
+</form>
+<p>Write your username and e-mail adress to recieve an e-mail with a validation code</p>
+
+{% endblock %}

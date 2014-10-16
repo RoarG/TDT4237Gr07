@@ -22,6 +22,19 @@ class Auth
         return Hash::check($password, $user->getPasswordHash());
     }
 
+    static function checkEmail($username, $email){
+    	$user = User::findByUser($username);
+    	
+    	if($user === null){
+    		return false;
+    	}else{
+    		if($user->getEmail() === $email){
+    			return true;
+    		}
+    		return false;
+    	}
+    }
+    
     /**
      * Check if is logged in.
      */

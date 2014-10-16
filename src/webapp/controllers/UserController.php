@@ -29,12 +29,21 @@ class UserController extends Controller
     	$minpass = 8;
     	$maxpass = 25;
     	
-    	/*Dumt å skrive inn passordfeil her?*/
     	if(strlen($pass) < $minpass){
     		array_push($validationErrors, "Password too short. Min length is " . $minpass);
     	}
     	if(strlen($pass) > $maxpass){
     		array_push($validationErrors, " Password too long. Max length is " . $maxpass);
+    	}
+
+    	if (! preg_match ( '/[A-Za-z]/', $pass )) {
+    		array_push ( $validationErrors, 'Password must contain letters' );
+    	}
+    	if (! preg_match ( '/[0-9]/', $pass )) {
+    		array_push ( $validationErrors, 'Password must contain numbers' );
+    	}
+    	if (! preg_match ( '/[_\W]/', $pass )) {
+    		array_push ( $validationErrors, 'Password must contain special characters' );
     	}
     	
         return $validationErrors;
@@ -45,12 +54,16 @@ class UserController extends Controller
         $request = $this->app->request;
         $username = $request->post('user');
         $pass = $request->post('pass');
+        $email = $request->post('email');
+        
+        //MÅ HA MED ERRORS HER, MEN VET IKKE HVA
 
         $hashed = Hash::make($pass);
 
         $user = User::makeEmpty();
         $user->setUsername($username);
         $user->setHash($hashed);
+        $user->setEmail($email);
 
         $validationError = User::validate($user);
         $validationError2 = self::validatePass($pass);
