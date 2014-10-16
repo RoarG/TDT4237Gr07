@@ -34,12 +34,13 @@ class Auth
         return false;
     }
 
+    static function logIP() {
+        return $_SERVER['REMOTE_ADDR'];
+    }
+
     static function token() {
         if (isset($_SESSION['token'])) {
             return $_SESSION['token'];
-        }
-        else {
-            throw new \Exception('Not logged in but called Auth::token() anyway');
         }
     }
 
