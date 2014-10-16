@@ -5,19 +5,10 @@ namespace tdt4237\webapp\models;
 use tdt4237\webapp\Hash;
 
 class User
-<<<<<<< HEAD
 {	
-	//Fjernet alle query-konstantene, da de viste seg å ikke fungere. La dem heller inn i sine respektive funksjoner
-	const MIN_USER_LENGTH = 3;
-=======
-{
-    const INSERT_QUERY = "INSERT INTO users(user, pass, email, age, bio, isadmin) VALUES('%s', '%s', '%s' , '%s' , '%s', '%s')";
-    const UPDATE_QUERY = "UPDATE users SET email='%s', age='%s', bio='%s', isadmin='%s' WHERE id='%s'";
-    const FIND_BY_NAME = "SELECT * FROM users WHERE user='%s'";
 
     const MIN_USER_LENGTH = 3;
     const MAX_USER_LENGTH = 20;
->>>>>>> 4f4a899d410a4ceeaafda4689d9ae32daaa45550
 
     protected $id = null;
     protected $user;
