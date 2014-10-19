@@ -14,6 +14,7 @@
 <label>Password: </label>
 <input type="password" name="pass"> <br />
 <input type="submit" name="submit" value="Create new user">
+<input type="hidden" name="CSRFToken" value="{{ token|raw }}">
 <p>Username must be between 3 - 20 characters and may only consist of letters and numbers<br/>
 Password must be between 8 - 25 characters and contain letters, numbers (and special characters?)</p>
 </form>

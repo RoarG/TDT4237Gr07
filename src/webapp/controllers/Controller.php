@@ -20,6 +20,11 @@ class Controller
             $variables['loggedInUsername'] = $_SESSION['user'];
         }
 
+        if (! isset($_SESSION['token'])) {
+            $_SESSION['token'] = Auth::generateToken();
+        }
+
+
         print $this->app->render($template, $variables);
     }
 }

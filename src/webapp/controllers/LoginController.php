@@ -18,36 +18,43 @@ class LoginController extends Controller
             $this->app->flash('info', 'You are already logged in as ' . $username);
             $this->app->redirect('/');
         } else {
-            $this->render('login.twig', []);
+            $this->render('login.twig', ['token' => Auth::token()]);
         }
     }
 
     function login()
-    {
-        $request = $this->app->request;
-        $user = $request->post('user');
-        $pass = $request->post('pass');
+    {   
+        if (Auth::checkToken($this->app->request->post('CSRFToken'))) {
 
-        if (Auth::checkCredentials($user, $pass)) {
-            $_SESSION['user'] = $user;
-            $_SESSION['token'] = Auth::generateToken();
+            $request = $this->app->request;
+            $user = $request->post('user');
+            $pass = $request->post('pass');
 
-            $isAdmin = Auth::user()->isAdmin();
+            if (Auth::checkCredentials($user, $pass)) {
+                $_SESSION['user'] = $user;
 
-            if ($isAdmin) {
-                setcookie("isadmin", "yes");
-            } else {
-                setcookie("isadmin", "no");
+                $isAdmin = Auth::user()->isAdmin();
+
+                if ($isAdmin) {
+                    setcookie("isadmin", "yes");
+                } else {
+                    setcookie("isadmin", "no");
+                }
+
+                //Regenerere sessionId etter login. PHPSESSID bytter
+                session_regenerate_id();
+
+                $this->app->flash('info', "You are now successfully logged in as $user.");
+                $this->app->redirect('/');
             }
-
-            //Regenerere sessionId etter login. PHPSESSID bytter
-            session_regenerate_id();
-
-            $this->app->flash('info', "You are now successfully logged in as $user.");
-            $this->app->redirect('/');
-        } else {
-            $this->app->flashNow('error', 'Incorrect user/pass combination.');
-            $this->render('login.twig', []);
+            else {
+                $this->app->flashNow('error', 'Incorrect user/pass combination.');
+                $this->render('login.twig', ['token' => Auth::token()]);
+            }
+        }
+        else {
+            $this->app->flashNow('error', "This page has timed out, please try again!");
+            $this->render('login.twig', ['token' => Auth::token()]);
         }
     }
 }

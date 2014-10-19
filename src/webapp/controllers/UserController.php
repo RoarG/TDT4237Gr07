@@ -16,7 +16,7 @@ class UserController extends Controller
     function index()
     {
         if (Auth::guest()) {
-            $this->render('newUserForm.twig', []);
+            $this->render('newUserForm.twig', ['token' => Auth::token()]);
         } else {
             $username = Auth::user()->getUserName();
             $this->app->flash('info', 'You are already logged in as ' . $username);
@@ -41,29 +41,35 @@ class UserController extends Controller
     }
 
     function create()
-    {
-        $request = $this->app->request;
-        $username = $request->post('user');
-        $pass = $request->post('pass');
+    {   
+        if (Auth::checkToken($this->app->request->post('CSRFToken'))) {
+            $request = $this->app->request;
+            $username = $request->post('user');
+            $pass = $request->post('pass');
 
-        $hashed = Hash::make($pass);
+            $hashed = Hash::make($pass);
 
-        $user = User::makeEmpty();
-        $user->setUsername($username);
-        $user->setHash($hashed);
+            $user = User::makeEmpty();
+            $user->setUsername($username);
+            $user->setHash($hashed);
 
-        $validationError = User::validate($user);
-        $validationError2 = self::validatePass($pass);
-        $result = array_merge($validationError,$validationError2);
+            $validationError = User::validate($user);
+            $validationError2 = self::validatePass($pass);
+            $result = array_merge($validationError,$validationError2);
 
-        if (sizeof($result) > 0) {
-            $errors = join("<br>\n", $result);
-            $this->app->flashNow('error', $errors);
-            $this->render('newUserForm.twig', ['username' => $username]);
-        } else {
-            $user->save();
-            $this->app->flash('info', 'Thanks for creating a user. Now log in.');
-            $this->app->redirect('/login');
+            if (sizeof($result) > 0) {
+                $errors = join("<br>\n", $result);
+                $this->app->flashNow('error', $errors);
+                $this->render('newUserForm.twig', ['username' => $username, 'token' => Auth::token()]);
+            } else {
+                $user->save();
+                $this->app->flash('info', 'Thanks for creating a user. Now log in.');
+                $this->app->redirect('/login');
+            }
+        }
+        else {
+            $this->app->flash('error', 'This page has timed out, please try again!');
+            $this->render('newUserForm.twig', ['token' => Auth::token()]);
         }
     }
 
@@ -122,7 +128,7 @@ class UserController extends Controller
                 }
             }
             else {
-                $this->app->flashNow('error', "Something is not right, are you CSRF'ing?");
+                $this->app->flashNow('error', "This page has timed out, please try again!");
             }
         }
         $this->render('edituser.twig', array('user' => $user, 'token' => Auth::token()));

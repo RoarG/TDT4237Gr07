@@ -31,23 +31,31 @@ class MovieController extends Controller
     {
         $this->render('showmovie.twig', [
             'movie' => Movie::find($id),
-            'reviews' => MovieReview::findByMovieId($id)
+            'reviews' => MovieReview::findByMovieId($id),
+            'token' => Auth::token()
         ]);
     }
 
     function addReview($id)
-    {
-        $author = $this->app->request->post('author');
-        $text = $this->app->request->post('text');
+    {   
+        $token = $this->app->request->post('CSRFToken');
+        if (Auth::checkToken($token)) {
+            $author = $this->app->request->post('author');
+            $text = $this->app->request->post('text');
 
-        $review = MovieReview::makeEmpty();
-        $review->setAuthor($author);
-        $review->setText($text);
-        $review->setMovieId($id);
+            $review = MovieReview::makeEmpty();
+            $review->setAuthor($author);
+            $review->setText($text);
+            $review->setMovieId($id);
 
-        $review->save();
+            $review->save();
 
-        $this->app->flash('info', 'The review was successfully saved.');
+            $this->app->flash('info', 'The review was successfully saved.');
+        }
+        else {
+            $this->app->flash('info', 'This page has timed out, please try again!');
+        }
+
         $this->app->redirect('/movies/' . $id);
     }
 }

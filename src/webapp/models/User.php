@@ -5,8 +5,8 @@ namespace tdt4237\webapp\models;
 use tdt4237\webapp\Hash;
 
 class User
-{	
-	
+{
+    
     const MIN_USER_LENGTH = 3;
     const MAX_USER_LENGTH = 20;
 
