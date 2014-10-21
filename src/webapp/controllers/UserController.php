@@ -8,8 +8,6 @@ use tdt4237\webapp\Auth;
 
 class UserController extends Controller
 {
-	protected $username;
-	
     function __construct()
     {
         parent::__construct();
