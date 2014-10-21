@@ -5,7 +5,7 @@ namespace tdt4237\webapp\controllers;
 use tdt4237\webapp\Auth;
 
 class LoginController extends Controller
-{
+{	
     function __construct()
     {
         parent::__construct();
@@ -20,30 +20,6 @@ class LoginController extends Controller
         } else {
             $this->render('login.twig', []);
         }
-    }
-    
-    function forgot(){
-    	if (Auth::check()) {
-    		$username = Auth::user()->getUserName();
-    		$this->app->flash('info', 'You are already logged in as ' . $username);
-    		$this->app->redirect('/');
-    	} else {
-    			$this->render('forgotPass.twig', []);
-    	}
-    }
-
-    function reset(){
-    	$request = $this->app->request;
-    	$user = $request->post('user');
-    	$email = $request->post('email');
-
-    	if(Auth::checkEmail($user, $email)){
-    		$this->app->flashNow('error', 'Riktig!!');
-    		$this->render('resetPass.twig', []);
-    	}else{
-    		$this->app->flashNow('error', 'Incorrect user/email combination.');
-    		$this->render('forgotPass.twig', []);
-    	}
     }
     
     function login()

@@ -50,6 +50,12 @@ class Auth
     {
         return self::check() === false;
     }
+    
+    static function resetPass(){
+    	if(isset($_SESSION['reset'])){
+    		return User::findByUser($_SESSION['reset']);
+    	}
+    }
 
     /**
      * Get currently logged in user.

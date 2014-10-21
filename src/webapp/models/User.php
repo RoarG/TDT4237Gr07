@@ -6,8 +6,8 @@ use tdt4237\webapp\Hash;
 
 class User
 {
-    const INSERT_QUERY = "INSERT INTO users(user, pass, email, age, bio, isadmin) VALUES('%s', '%s', '%s' , '%s' , '%s', '%s')";
-    const UPDATE_QUERY = "UPDATE users SET email='%s', age='%s', bio='%s', isadmin='%s' WHERE id='%s'";
+    const INSERT_QUERY = "INSERT INTO users(user, pass, email, age, bio, isadmin, temppass) VALUES('%s', '%s', '%s' , '%s' , '%s', '%s', '%s')";
+    const UPDATE_QUERY = "UPDATE users SET email='%s', age='%s', bio='%s', isadmin='%s', temppass='%s' WHERE id='%s'";
     const FIND_BY_NAME = "SELECT * FROM users WHERE user='%s'";
 
     const MIN_USER_LENGTH = 3;
@@ -20,6 +20,7 @@ class User
     protected $bio = 'Bio is empty.';
     protected $age;
     protected $isAdmin = 0;
+    protected $temppass;
 
     static $app;
 
@@ -27,7 +28,7 @@ class User
     {
     }
 
-    static function make($id, $username, $hash, $email, $bio, $age, $isAdmin)
+    static function make($id, $username, $hash, $email, $bio, $age, $isAdmin, $temppass)
     {
         $user = new User();
         $user->id = $id;
@@ -37,6 +38,7 @@ class User
         $user->bio = $bio;
         $user->age = $age;
         $user->isAdmin = $isAdmin;
+        $user->temppass = $temppass;
 
         return $user;
     }
@@ -58,7 +60,8 @@ class User
                 $this->email,
                 $this->age,
                 $this->bio,
-                $this->isAdmin
+                $this->isAdmin,
+            	$this->temppass
             );
         } else {
             $query = sprintf(self::UPDATE_QUERY,
@@ -66,6 +69,7 @@ class User
                 $this->age,
                 $this->bio,
                 $this->isAdmin,
+            	$this->temppass,
                 $this->id
             );
         }
@@ -102,6 +106,11 @@ class User
     {
         return $this->age;
     }
+    
+    function getCode()
+    {
+    	return $this->temppass;
+    }
 
     function isAdmin()
     {
@@ -136,6 +145,11 @@ class User
     function setAge($age)
     {
         $this->age = $age;
+    }
+    
+    function setCode($code)
+    {
+    	$this->temppass = $code;
     }
 
     /**
@@ -200,6 +214,11 @@ class User
         return self::$app->db->exec($query);
     }
 
+    static function colExists()
+    {
+    	self::$app->db->query("ALTER TABLE users ADD temppass VARCHAR(40)");
+    }
+    
     static function all()
     {
         $query = "SELECT * FROM users";
@@ -217,6 +236,9 @@ class User
 
     static function makeFromSql($row)
     {
+    	if(!array_key_exists('temppass' , $row )){
+    		self::colExists();
+    	}
         return User::make(
             $row['id'],
             $row['user'],
@@ -224,7 +246,8 @@ class User
             $row['email'],
             $row['bio'],
             $row['age'],
-            $row['isadmin']
+            $row['isadmin'],
+        	$row['temppass']
         );
     }
 }

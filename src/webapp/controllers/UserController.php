@@ -8,6 +8,8 @@ use tdt4237\webapp\Auth;
 
 class UserController extends Controller
 {
+	protected $username;
+	
     function __construct()
     {
         parent::__construct();
@@ -54,9 +56,6 @@ class UserController extends Controller
         $request = $this->app->request;
         $username = $request->post('user');
         $pass = $request->post('pass');
-        $email = $request->post('email');
-        
-        //MÅ HA MED ERRORS HER, MEN VET IKKE HVA
 
         $hashed = Hash::make($pass);
 
@@ -78,6 +77,91 @@ class UserController extends Controller
             $this->app->flash('info', 'Thanks for creating a user. Now log in.');
             $this->app->redirect('/login');
         }
+    }
+    
+    
+    function forgot(){
+    	if (Auth::check()) {
+    		$username = Auth::user()->getUserName();
+    		$this->app->flash('info', 'You are already logged in as ' . $username);
+    		$this->app->redirect('/');
+    	} else {
+    		$this->render('forgotPass.twig', []);
+    	}
+    }
+    
+    function reset(){
+    	$request = $this->app->request;
+    	$username = $request->post('user');
+    	$email = $request->post('email');
+    	 
+    	//Sett XSS test på dette!!
+    		if(Auth::checkEmail($username, $email)){
+    			$user = User::findByUser($username);
+    			$code = self::generateRandomString();
+    			$user->setCode($code);
+    			$user->save();
+    			$_SESSION['reset'] = $user->getUsername();
+    			$this->app->redirect('/reset/validate');
+    		}else{
+    			$this->app->flashNow('error', 'Incorrect user/email combination.');
+    			$this->render('forgotPass.twig', []);
+    		}
+    }
+    
+    function validate(){
+    	$request = $this->app->request;
+    	$validation = $request->post('val');
+    	$newpass = $request->post('newpass');
+    	$user = Auth::resetPass();
+    	if(isset($user)){
+    		$code = self::generateRandomString();
+    		$code = $user->getCode();
+    		if(!isset($validation)){
+    			$this->render('resetPass.twig', []);
+    		}elseif($validation === $code){
+    			$validationError = self::validatePass($newpass);
+    			$hashed = Hash::make($newpass);
+    			$user->setHash($hashed);
+    			if (sizeof($validationError) > 0) {
+    				$errors = join("<br>\n", $validationError);
+    				$this->app->flashNow('error', $errors);
+    				$this->render('resetPass.twig', []);
+    			} else {
+    				$user->setCode(null);
+    				$user->save();
+    				unset($_SESSION['reset']);
+    				$this->app->flash('info', 'Your password has been reset. Now log in.');
+    				$this->app->redirect('/login');
+    			}
+    		}else {
+    			$this->app->flashNow('error', 'Incorrect validationcode.');
+    			$this->render('resetPass.twig', []);
+    		}
+    	}else{
+    		$this->app->redirect('/');
+    	}
+    }
+    
+    function mail(){
+    	$user = Auth::resetPass();
+    	if(isset($user)){
+    		$email = $user->getEmail();
+    		$code = $user->getCode();
+    		$this->render('mail.twig',['code'=>$code, 'email' =>$email]);
+    	}else{
+    		$this->app->redirect('/');
+    	}
+    }
+    
+    function generateRandomString() {
+    	$length = 15;
+    	$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    	$randomString = '';
+    	for ($i = 0; $i < $length; $i++) {
+    		$randomString .= $characters[rand(0, strlen($characters) - 1)];
+    	}
+    	return $randomString;
     }
 
     function all()
@@ -137,3 +221,4 @@ class UserController extends Controller
         $this->render('edituser.twig', ['user' => $user]);
     }
 }
+  

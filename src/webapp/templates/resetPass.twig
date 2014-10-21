@@ -8,12 +8,21 @@
 
 <form action="" method="POST">
 
-<label>Validationcode: </label>
-<input type="text" name="valid"> <br />
-<label>New password: </label>
-<input type="password" name="newpass"> <br />
-<br/>
-<input type="submit" name="submit" value="Reset">
+	<label>Validationcode: </label>
+	<input type="text" name="val"> <br />
+	<label>New password: </label>
+	<input type="password" name="newpass"> <br />
+<input type="submit" name="submit" value="Submit">
 </form>
+
+<script type="text/javascript">
+function doSomething() {
+    $.get("somepage.php");
+    return false;
+}
+</script>
+<p>E-mail sent: 
+<a href="{{ urlFor('mail') }}" target="_blank">Click here to see e-mail</a> (E-mail will open in new tab)<br/>
+</p>
 
 {% endblock %}
