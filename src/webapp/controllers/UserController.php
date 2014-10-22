@@ -100,6 +100,7 @@ class UserController extends Controller
     			$user->setCode($code);
     			$user->save();
     			$_SESSION['reset'] = $user->getUsername();
+    			$_SESSION['timeout'] = time();
     			$this->app->redirect('/reset/validate');
     		}else{
     			$this->app->flashNow('error', 'Incorrect user/email combination.');
@@ -112,11 +113,22 @@ class UserController extends Controller
     	$validation = $request->post('val');
     	$newpass = $request->post('newpass');
     	$user = Auth::resetPass();
-    	if(isset($user)){
+    	if (Auth::check()) {
+    		$username = Auth::user()->getUserName();
+    		$this->app->flash('info', 'You are already logged in as ' . $username);
+    		$this->app->redirect('/');
+    	}elseif(isset($user)){
     		$code = self::generateRandomString();
     		$code = $user->getCode();
     		if(!isset($validation)){
-    			$this->render('resetPass.twig', []);
+    			$this->render('resetPass.twig', []);    		
+    		}elseif(isset($_SESSION['timeout']) && (time() - $_SESSION['timeout'] > 600)){
+    			$user->setCode(null);
+    			$user->save();
+    			session_unset();
+    			session_destroy();
+    			$this->app->flash('info', 'Timeout');
+    			$this->app->redirect('/login');
     		}elseif($validation === $code){
     			$validationError = self::validatePass($newpass);
     			$hashed = Hash::make($newpass);
@@ -128,9 +140,10 @@ class UserController extends Controller
     			} else {
     				$user->setCode(null);
     				$user->save();
-    				unset($_SESSION['reset']);
     				$this->app->flash('info', 'Your password has been reset. Now log in.');
     				$this->app->redirect('/login');
+    				session_unset();
+    				session_destroy();
     			}
     		}else {
     			$this->app->flashNow('error', 'Incorrect validationcode.');
@@ -143,7 +156,11 @@ class UserController extends Controller
     
     function mail(){
     	$user = Auth::resetPass();
-    	if(isset($user)){
+    	if (Auth::check()) {
+    		$username = Auth::user()->getUserName();
+    		$this->app->flash('info', 'You are already logged in as ' . $username);
+    		$this->app->redirect('/');
+    	}elseif(isset($user)){
     		$email = $user->getEmail();
     		$code = $user->getCode();
     		$this->render('mail.twig',['code'=>$code, 'email' =>$email]);

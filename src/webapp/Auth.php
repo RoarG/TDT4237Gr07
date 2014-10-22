@@ -53,8 +53,16 @@ class Auth
     
     static function resetPass(){
     	if(isset($_SESSION['reset'])){
+    		if(isset($_SESSION['timeout']) && (time() - $_SESSION['timeout'] > 600)){
+    			$user = User::findByUser($_SESSION['reset']);
+    			$user->setCode(null);
+    			session_unset();
+    			session_destroy();
+    			return null;
+    		}
     		return User::findByUser($_SESSION['reset']);
     	}
+    	return null;
     }
 
     /**

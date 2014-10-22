@@ -7,7 +7,7 @@ use tdt4237\webapp\Hash;
 class User
 {
     const INSERT_QUERY = "INSERT INTO users(user, pass, email, age, bio, isadmin, temppass) VALUES('%s', '%s', '%s' , '%s' , '%s', '%s', '%s')";
-    const UPDATE_QUERY = "UPDATE users SET email='%s', age='%s', bio='%s', isadmin='%s', temppass='%s' WHERE id='%s'";
+    const UPDATE_QUERY = "UPDATE users SET email='%s', age='%s', bio='%s', isadmin='%s', temppass='%s', pass='%s' WHERE id='%s'";
     const FIND_BY_NAME = "SELECT * FROM users WHERE user='%s'";
 
     const MIN_USER_LENGTH = 3;
@@ -70,6 +70,7 @@ class User
                 $this->bio,
                 $this->isAdmin,
             	$this->temppass,
+            	$this->pass,
                 $this->id
             );
         }
