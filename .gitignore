@@ -2,6 +2,7 @@ app.db
 tags
 composer.phar
 vendor/*
+local\ webapp.rtf
 *.php~
 
 #

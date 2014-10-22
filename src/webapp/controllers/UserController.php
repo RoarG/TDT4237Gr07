@@ -47,32 +47,60 @@ class UserController extends Controller
             $username = $request->post('user');
             $pass = $request->post('pass');
 
-            $hashed = Hash::make($pass);
+    {
+        $request = $this->app->request;
+        $username = $request->post('user');
+        $pass = $request->post('pass');
 
-            $user = User::makeEmpty();
-            $user->setUsername($username);
-            $user->setHash($hashed);
+        $hashed = Hash::make($pass);
 
-            $validationError = User::validate($user);
-            $validationError2 = self::validatePass($pass);
-            $result = array_merge($validationError,$validationError2);
+        $user = User::makeEmpty();
+        $user->setUsername($username);
+        $user->setHash($hashed);
 
-            if (sizeof($result) > 0) {
-                $errors = join("<br>\n", $result);
-                $this->app->flashNow('error', $errors);
-                $this->render('newUserForm.twig', ['username' => $username, 'token' => Auth::token()]);
-            } else {
-                $user->save();
-                $this->app->flash('info', 'Thanks for creating a user. Now log in.');
-                $this->app->redirect('/login');
-            }
+        $validationError = User::validate($user);
+        $validationError2 = self::validatePass($pass);
+        $result = array_merge($validationError,$validationError2);
+
+        if (sizeof($result) > 0) {
+            $errors = join("<br>\n", $result);
+            $this->app->flashNow('error', $errors);
+            $this->render('newUserForm.twig', ['username' => $username, 'token' => Auth::token()]);
+        
+        $validationError = User::validate($user);
+        $validationError2 = self::validatePass($pass);
+        $result = array_merge($validationError,$validationError2);
+        
+        if (sizeof($result) > 0) {
+            $errors = join("<br>\n", $result);
+            $this->app->flashNow('error', $errors);
+            $this->render('newUserForm.twig', ['username' => htmlspecialchars($username, ENT_QUOTES, 'UTF-8')]);
+        } else {
+            $user->save();
+            $this->app->flash('info', 'Thanks for creating a user. Now log in.');
+            $this->app->redirect('/login');
         }
-        else {
-            $this->app->flash('error', 'This page has timed out, please try again!');
-            $this->render('newUserForm.twig', ['token' => Auth::token()]);
-        }
+
+        // // Sanitize username field, but not password as the password is never included in an HTML, and the user should be able to set the password to whatever he or she wants.
+        // $processedUsername = htmlspecialchars(strip_tags($username), ENT_QUOTES, 'UTF-8');
+
+        // if ($username == $processedUsername) {
+        //     // Create user
+            
+        // }
+        // else {
+        //     $this->app->flash('error', 'This page has timed out, please try again!');
+        //     $this->render('newUserForm.twig', ['token' => Auth::token()]);
+
+        //     // Return error
+        //     $errors = "A username cannot contain any HTML tags or special characters";
+        //     $this->app->flashNow('error', $errors);
+        //     $this->render('newUserForm.twig', ['username' => htmlspecialchars($username, ENT_QUOTES, 'UTF-8')]);
+        // }
     }
+            
 
+            
     function all()
     {
         $users = User::all();
@@ -87,11 +115,13 @@ class UserController extends Controller
 
     function show($username)
     {
+        $username = strip_tags($username);
+
         $user = User::findByUser($username);
 
         $this->render('showuser.twig', [
             'user' => $user,
-            'username' => $username
+            'username' => htmlspecialchars($username, ENT_QUOTES, 'UTF-8')
         ]);
     }
 
@@ -161,6 +191,31 @@ class UserController extends Controller
 
         if ($this->app->request->isPost()) {
             $request = $this->app->request;
+
+            $email = $request->post('email');
+            $bio = $request->post('bio');
+            $age = $request->post('age');
+
+            //Sanitize inputs
+            $email = strip_tags($email);
+            $bio   = strip_tags($bio);
+            $age   = strip_tags($age);
+
+            //Convert special characters to HTML entities
+            $email = htmlspecialchars($email, ENT_QUOTES, 'UTF-8');
+            $bio   = htmlspecialchars($bio,   ENT_QUOTES, 'UTF-8');
+            $age   = htmlspecialchars($age,   ENT_QUOTES, 'UTF-8');
+
+            $user->setEmail($email);
+            $user->setBio($bio);
+            $user->setAge($age);
+
+            if (! User::validateAge($user)) {
+                $this->app->flashNow('error', 'Age must be between 0 and 150.');
+            } else {
+                $user->save();
+                $this->app->flashNow('info', 'Your profile was successfully saved.');
+
             if (Auth::checkToken($request->post('CSRFToken'))) {
                 $email = $request->post('email');
                 $bio = $request->post('bio');
@@ -190,9 +245,16 @@ class UserController extends Controller
                 }
             }
             else {
+<<<<<<< HEAD
                 $this->app->flashNow('error', "This page has timed out, please try again!");
+=======
+                $this->app->flashNow('error', "Something is not right, are you CSRF'ing?");
+
+>>>>>>> 0bf0f07d36cee5ef6f5feb9beb763d654842107b
             }
         }
         $this->render('edituser.twig', array('user' => $user, 'token' => Auth::token()));
     }
 }
+
+
