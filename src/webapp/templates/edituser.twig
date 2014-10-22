@@ -5,21 +5,21 @@
     <h2>Edit profile</h2>
 
     <form enctype="multipart/form-data" action="" method="POST">
-        <div id="flasherror">{{ flash.error|raw }}</div>
+        <div id="flasherror">{{ flash.error|escape }}</div>
 
         <label>email:</label>
-        <input type="text" name="email" value="{{ user.email|raw }}"> <br />
+        <input type="text" name="email" value="{{ user.email|escape }}"> <br />
 
         <label>Bio:</label>
-        <textarea name="bio">{{ user.bio|raw }}</textarea>
+        <textarea name="bio">{{ user.bio|escape }}</textarea>
 
         <label>Age:</label>
-        <input type="text" name="age" value="{{ user.age|raw }}"> <br />
+        <input type="text" name="age" value="{{ user.age|escape }}"> <br />
 
         <label>Profile picture:</label>
         <input type="file" name="file"> <br />
 
-        <input type="hidden" name="CSRFToken" value="{{ token|raw }}"> <br />
+        <input type="hidden" name="CSRFToken" value="{{ token|escape }}"> <br />
 
         <input type="submit" name="submit" value="Save profile">
     </form>
