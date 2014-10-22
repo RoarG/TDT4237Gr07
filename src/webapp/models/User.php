@@ -58,6 +58,7 @@ class User
         else {
         	$stmt = self::$app->db->prepare("UPDATE users SET email=?, age=?, pass=?, bio=?, isadmin=?, imageurl=?, temppass=? WHERE id=?");
             $stmt->execute(array($this->email, $this->age, $this->pass, $this->bio, $this->isAdmin, $this->imageUrl, $this->temppass, $this->id));
+        }
     }
 
     function getId()
@@ -231,7 +232,7 @@ class User
             $row['bio'],
             $row['age'],
             $row['isadmin'],
-            $row['imageurl']
+            $row['imageurl'],
         	$row['temppass']
         );
     }

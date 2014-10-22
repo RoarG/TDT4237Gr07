@@ -55,6 +55,7 @@ class UserController extends Controller
             $request = $this->app->request;
             $username = $request->post('user');
             $pass = $request->post('pass');
+            $email = $request->post('email');
 
             $hashed = Hash::make($pass);
 
