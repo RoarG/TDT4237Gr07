@@ -95,6 +95,37 @@ class UserController extends Controller
         ]);
     }
 
+    static function validateImage() {
+        $fileName = $_FILES['file']['name'];
+        $validFiletypes = array('jpg', 'jpeg', 'gif', 'png');
+        $fileExtension = explode(".", $fileName);
+
+        if (substr_count($fileName, ".") > 1) {
+            return "The filename contains more than one .";
+        }
+
+        if (! getimagesize($_FILES['file']['tmp_name'])[0]) {
+            return "The file is not an image.";
+        }
+        
+        $exists = false;
+        foreach ($validFiletypes as $filetype) {
+            if ($filetype == $fileExtension[1]) {
+                $exists = true;
+                break; 
+            }
+        }
+        if (! $exists) {
+            return "The file is of an unsupported format.";
+        }
+
+        if ($_FILES['file']['size'] > 10000000) {
+                return "The file is too large.";
+        }
+        
+        return true;
+    } 
+
     //saves image to image folder and returns the name of the file as it is saved in that folder
     static function saveImage() {
         if (! file_exists($_SERVER['DOCUMENT_ROOT'] . "/images/profilepics/")) {
@@ -144,8 +175,15 @@ class UserController extends Controller
                 } 
                 else {
                     if ($_FILES['file']['name'] != null) {
-                        $imageUrl = self::saveImage();
-                        $user->setImageUrl($imageUrl);
+                        $response = UserController::validateImage();
+
+                        if ($response === true) {
+                            $imageUrl = self::saveImage();
+                            $user->setImageUrl($imageUrl);
+                        }
+                        else {
+                            $this->app->flashNow('error', $response);
+                        }     
                     }
                     $user->save();
                     $this->app->flashNow('info', 'Your profile was successfully saved.');
