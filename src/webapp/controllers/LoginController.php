@@ -5,7 +5,7 @@ namespace tdt4237\webapp\controllers;
 use tdt4237\webapp\Auth;
 
 class LoginController extends Controller
-{
+{	
     function __construct()
     {
         parent::__construct();
@@ -21,7 +21,7 @@ class LoginController extends Controller
             $this->render('login.twig', ['token' => Auth::token()]);
         }
     }
-
+    
     function login()
     {   
         if (Auth::checkToken($this->app->request->post('CSRFToken'))) {
@@ -36,12 +36,6 @@ class LoginController extends Controller
                 $_SESSION['user'] = $user;
 
                 $isAdmin = Auth::user()->isAdmin();
-
-                if ($isAdmin) {
-                    $_SESSION['isAdmin'] = $isAdmin;
-                } else {
-                    $_SESSION['isAdmin'] = $isAdmin;
-                }
 
                 $this->app->flash('info', "You are now successfully logged in as $user.");
                 $this->app->redirect('/');

@@ -34,10 +34,6 @@ class Auth
         return false;
     }
 
-    static function logIP() {
-        return $_SERVER['REMOTE_ADDR'];
-    }
-
     static function token() {
         if (isset($_SESSION['token'])) {
             return $_SESSION['token'];
@@ -53,6 +49,19 @@ class Auth
         return $str;
     }
 
+    static function checkEmail($username, $email){
+    	$user = User::findByUser($username);
+    	
+    	if($user === null){
+    		return false;
+    	}else{
+    		if($user->getEmail() === $email){
+    			return true;
+    		}
+    		return false;
+    	}
+    }
+    
     /**
      * Check if is logged in.
      */
@@ -67,6 +76,20 @@ class Auth
     static function guest()
     {
         return self::check() === false;
+    }
+    
+    static function resetPass(){
+    	if(isset($_SESSION['reset'])){
+    		if(isset($_SESSION['timeout']) && (time() - $_SESSION['timeout'] > 600)){
+    			$user = User::findByUser($_SESSION['reset']);
+    			$user->setCode(null);
+    			session_unset();
+    			session_destroy();
+    			return null;
+    		}
+    		return User::findByUser($_SESSION['reset']);
+    	}
+    	return null;
     }
 
     /**
