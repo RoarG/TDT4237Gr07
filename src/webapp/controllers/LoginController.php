@@ -31,18 +31,17 @@ class LoginController extends Controller
             $pass = $request->post('pass');
 
             if (Auth::checkCredentials($user, $pass)) {
+                //Regenerere sessionId etter login. PHPSESSID bytter
+                session_regenerate_id();
                 $_SESSION['user'] = $user;
 
                 $isAdmin = Auth::user()->isAdmin();
 
                 if ($isAdmin) {
-                    setcookie("isadmin", "yes");
+                    $_SESSION['isAdmin'] = $isAdmin;
                 } else {
-                    setcookie("isadmin", "no");
+                    $_SESSION['isAdmin'] = $isAdmin;
                 }
-
-                //Regenerere sessionId etter login. PHPSESSID bytter
-                session_regenerate_id();
 
                 $this->app->flash('info', "You are now successfully logged in as $user.");
                 $this->app->redirect('/');

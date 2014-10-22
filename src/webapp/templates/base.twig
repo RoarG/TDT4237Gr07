@@ -22,6 +22,7 @@
         <div id="container">
             <div id="navbar">
                 {% if isLoggedIn %}
+                    <img src = "/images/profilepics/{{ profilePicUrl|raw }}" onError="this.onerror = null; this.src ='/images/profile-pic-placeholder.jpg'" height="70"> <br>
                     Logged in as {{ loggedInUsername|raw }}.<br>
                     <a href="{{ urlFor('editprofile') }}">Edit profile</a> <br>
                     <a href="{{ urlFor('logout') }}">Log out</a> <br>
