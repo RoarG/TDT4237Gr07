@@ -95,6 +95,25 @@ class UserController extends Controller
         ]);
     }
 
+    //saves image to image folder and returns the name of the file as it is saved in that folder
+    static function saveImage() {
+        if (! file_exists($_SERVER['DOCUMENT_ROOT'] . "/images/profilepics/")) {
+            mkdir($_SERVER['DOCUMENT_ROOT'] . "/images/profilepics/");
+        }
+        $uploadedFilename = $_FILES['file']['name'];
+        $exploded = explode(".", $uploadedFilename);
+        $filetype = $exploded[1];
+        $filenameToSave = Auth::generatePseudoRandom(8) . "." . $filetype;
+        $fileToSave = $_FILES['file']['tmp_name'];
+        move_uploaded_file($fileToSave, $_SERVER['DOCUMENT_ROOT'] . "/images/profilepics/" . $filenameToSave);
+        return $filenameToSave;
+    }
+
+    static function getProfilePicURL($username) {
+        $user = User::findByUser($username);
+        return $user->getImageUrl();
+    }
+
     function edit()
     {
         if (Auth::guest()) {
@@ -122,7 +141,12 @@ class UserController extends Controller
 
                 if (! User::validateAge($user)) {
                     $this->app->flashNow('error', 'Age must be between 0 and 150.');
-                } else {
+                } 
+                else {
+                    if ($_FILES['file']['name'] != null) {
+                        $imageUrl = self::saveImage();
+                        $user->setImageUrl($imageUrl);
+                    }
                     $user->save();
                     $this->app->flashNow('info', 'Your profile was successfully saved.');
                 }

@@ -17,6 +17,7 @@ class User
     protected $bio = 'Bio is empty.';
     protected $age;
     protected $isAdmin = 0;
+    protected $imageUrl;
 
     static $app;
 
@@ -24,7 +25,7 @@ class User
     {
     }
 
-    static function make($id, $username, $hash, $email, $bio, $age, $isAdmin)
+    static function make($id, $username, $hash, $email, $bio, $age, $isAdmin, $imageUrl)
     {
         $user = new User();
         $user->id = $id;
@@ -34,6 +35,7 @@ class User
         $user->bio = $bio;
         $user->age = $age;
         $user->isAdmin = $isAdmin;
+        $user->imageUrl = $imageUrl;
 
         return $user;
     }
@@ -49,12 +51,12 @@ class User
     
     function save() {
         if ($this->id === null) {
-        	$stmt = self::$app->db->prepare("INSERT INTO users(user, pass, email, age, bio, isadmin) VALUES(?, ?, ?, ?, ?, ?)");
-            $stmt->execute(array($this->user, $this->pass, $this->email, $this->age, $this->bio, $this->isAdmin));
+        	$stmt = self::$app->db->prepare("INSERT INTO users(user, pass, email, age, bio, isadmin, imageurl) VALUES(?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute(array($this->user, $this->pass, $this->email, $this->age, $this->bio, $this->isAdmin, $this->imageUrl));
         }
         else {
-        	$stmt = self::$app->db->prepare("UPDATE users SET email=?, age=?, bio=?, isadmin=? WHERE id=?");
-            $stmt->execute(array($this->email, $this->age, $this->bio, $this->isAdmin, $this->id));
+        	$stmt = self::$app->db->prepare("UPDATE users SET email=?, age=?, bio=?, isadmin=?, imageurl=? WHERE id=?");
+            $stmt->execute(array($this->email, $this->age, $this->bio, $this->isAdmin, $this->imageUrl, $this->id));
         }
     }
 
@@ -86,6 +88,11 @@ class User
     function getAge()
     {
         return $this->age;
+    }
+
+    function getImageUrl()
+    {
+        return $this->imageUrl;
     }
 
     function isAdmin()
@@ -121,6 +128,11 @@ class User
     function setAge($age)
     {
         $this->age = $age;
+    }
+
+    function setImageUrl($imageUrl) 
+    {
+        $this->imageUrl = $imageUrl;
     }
 
     /**
@@ -208,7 +220,8 @@ class User
             $row['email'],
             $row['bio'],
             $row['age'],
-            $row['isadmin']
+            $row['isadmin'],
+            $row['imageurl']
         );
     }
 }

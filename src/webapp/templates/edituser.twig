@@ -4,7 +4,7 @@
 
     <h2>Edit profile</h2>
 
-    <form action="" method="POST">
+    <form enctype="multipart/form-data" action="" method="POST">
         <div id="flasherror">{{ flash.error|raw }}</div>
 
         <label>email:</label>
@@ -15,6 +15,9 @@
 
         <label>Age:</label>
         <input type="text" name="age" value="{{ user.age|raw }}"> <br />
+
+        <label>Profile picture:</label>
+        <input type="file" name="file"> <br />
 
         <input type="hidden" name="CSRFToken" value="{{ token|raw }}"> <br />
 

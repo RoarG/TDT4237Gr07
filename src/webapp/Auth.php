@@ -44,6 +44,15 @@ class Auth
         }
     }
 
+    static function generatePseudoRandom($length) {
+        $chars = "ABCDEFGHIJKLMNOPQRSTUWXYZabcdefghijklmnopqrstuwxyz1234567890-_*@!$%&()=?";
+        $str = "";
+        for ($i=0; $i < $length; $i++) {
+            $str .= $chars[rand(0,strlen($chars)-1)];
+        }
+        return $str;
+    }
+
     /**
      * Check if is logged in.
      */
