@@ -153,7 +153,7 @@ class User
             array_push($validationErrors, "Username too short. Min length is " . self::MIN_USER_LENGTH);
         }
         if(strlen($user->user) > self::MAX_USER_LENGTH){
-        	array_push($validationErrors, "Username too long. Max lenght is " . self::MAX_USER_LENGTH);
+        	array_push($validationErrors, "Username too long. Max length is " . self::MAX_USER_LENGTH);
         }
         
 

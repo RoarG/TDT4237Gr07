@@ -46,36 +46,24 @@ class UserController extends Controller
         $username = $request->post('user');
         $pass = $request->post('pass');
 
-        // Sanitize username field, but not password as the password is never included in an HTML, and the user should be able to set the password to whatever he or she wants.
-        $processedUsername = htmlspecialchars(strip_tags($username), ENT_QUOTES, 'UTF-8');
+        $hashed = Hash::make($pass);
 
-        if ($username == $processedUsername) {
-            // Create user
-            $hashed = Hash::make($pass);
+        $user = User::makeEmpty();
+        $user->setUsername($username);
+        $user->setHash($hashed);
 
-            $user = User::makeEmpty();
-            $user->setUsername($username);
-            $user->setHash($hashed);
+        $validationError = User::validate($user);
+        $validationError2 = self::validatePass($pass);
+        $result = array_merge($validationError,$validationError2);
 
-            $validationError = User::validate($user);
-            $validationError2 = self::validatePass($pass);
-            $result = array_merge($validationError,$validationError2);
-
-            if (sizeof($result) > 0) {
-                $errors = join("<br>\n", $result);
-                $this->app->flashNow('error', $errors);
-                $this->render('newUserForm.twig', ['username' => htmlspecialchars($username, ENT_QUOTES, 'UTF-8')]);
-            } else {
-                $user->save();
-                $this->app->flash('info', 'Thanks for creating a user. Now log in.');
-                $this->app->redirect('/login');
-            }
-        }
-        else {
-            // Return error
-            $errors = "A username cannot contain any HTML tags or special characters";
+        if (sizeof($result) > 0) {
+            $errors = join("<br>\n", $result);
             $this->app->flashNow('error', $errors);
-            $this->render('newUserForm.twig', ['username' => htmlspecialchars($username, ENT_QUOTES, 'UTF-8')]);
+            $this->render('newUserForm.twig', ['username' => $username]);
+        } else {
+            $user->save();
+            $this->app->flash('info', 'Thanks for creating a user. Now log in.');
+            $this->app->redirect('/login');
         }
     }
 
@@ -93,13 +81,11 @@ class UserController extends Controller
 
     function show($username)
     {
-        $username = strip_tags($username);
-
         $user = User::findByUser($username);
 
         $this->render('showuser.twig', [
             'user' => $user,
-            'username' => htmlspecialchars($username, ENT_QUOTES, 'UTF-8')
+            'username' => $username
         ]);
     }
 
@@ -122,16 +108,6 @@ class UserController extends Controller
             $email = $request->post('email');
             $bio = $request->post('bio');
             $age = $request->post('age');
-
-            //Sanitize inputs
-            $email = strip_tags($email);
-            $bio   = strip_tags($bio);
-            $age   = strip_tags($age);
-
-            //Convert special characters to HTML entities
-            $email = htmlspecialchars($email, ENT_QUOTES, 'UTF-8');
-            $bio   = htmlspecialchars($bio,   ENT_QUOTES, 'UTF-8');
-            $age   = htmlspecialchars($age,   ENT_QUOTES, 'UTF-8');
 
             $user->setEmail($email);
             $user->setBio($bio);
