@@ -25,18 +25,18 @@ class UserController extends Controller
     }
     
     function validatePass($pass){
-    	$validationErrors = [];
-    	$minpass = 8;
-    	$maxpass = 25;
-    	
-    	/*Dumt å skrive inn passordfeil her?*/
-    	if(strlen($pass) < $minpass){
-    		array_push($validationErrors, "Password too short. Min length is " . $minpass);
-    	}
-    	if(strlen($pass) > $maxpass){
-    		array_push($validationErrors, " Password too long. Max length is " . $maxpass);
-    	}
-    	
+        $validationErrors = [];
+        $minpass = 8;
+        $maxpass = 25;
+        
+        /*Dumt å skrive inn passordfeil her?*/
+        if(strlen($pass) < $minpass){
+            array_push($validationErrors, "Password too short. Min length is " . $minpass);
+        }
+        if(strlen($pass) > $maxpass){
+            array_push($validationErrors, " Password too long. Max length is " . $maxpass);
+        }
+        
         return $validationErrors;
     }
 
@@ -52,20 +52,13 @@ class UserController extends Controller
         $username = $request->post('user');
         $pass = $request->post('pass');
 
-        $hashed = Hash::make($pass);
+        // Sanitize username field, but not password as the password is never included in an HTML, and the user should be able to set the password to whatever he or she wants.
+        $processedUsername = htmlspecialchars(strip_tags($username), ENT_QUOTES, 'UTF-8');
 
-        $user = User::makeEmpty();
-        $user->setUsername($username);
-        $user->setHash($hashed);
+        if ($username == $processedUsername) {
+            // Create user
+            $hashed = Hash::make($pass);
 
-<<<<<<< HEAD
-        $validationError = User::validate($user);
-        $validationError2 = self::validatePass($pass);
-        $result = array_merge($validationError,$validationError2);
-
-        if (sizeof($result) > 0) {
-            $errors = join("<br>\n", $result);
-=======
             $user = User::makeEmpty();
             $user->setUsername($username);
             $user->setHash($hashed);
@@ -99,13 +92,8 @@ class UserController extends Controller
 
             // Return error
             $errors = "A username cannot contain any HTML tags or special characters";
->>>>>>> master
             $this->app->flashNow('error', $errors);
-            $this->render('newUserForm.twig', ['username' => $username]);
-        } else {
-            $user->save();
-            $this->app->flash('info', 'Thanks for creating a user. Now log in.');
-            $this->app->redirect('/login');
+            $this->render('newUserForm.twig', ['username' => htmlspecialchars($username, ENT_QUOTES, 'UTF-8')]);
         }
     }
             
@@ -247,5 +235,3 @@ class UserController extends Controller
         $this->render('edituser.twig', array('user' => $user, 'token' => Auth::token()));
     }
 }
-
-
