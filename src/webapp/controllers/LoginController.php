@@ -31,7 +31,7 @@ class LoginController extends Controller
             $pass = $request->post('pass');
 
             if (Auth::checkCredentials($user, $pass)) {
-                //Regenerere sessionId etter login. PHPSESSID bytter
+                
                 session_regenerate_id();
                 $_SESSION['user'] = $user;
 

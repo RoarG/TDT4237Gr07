@@ -100,7 +100,6 @@ class UserController extends Controller
     	$username = $request->post('user');
     	$email = $request->post('email');
     	 
-    	//Sett XSS test på dette!!
     		if(Auth::checkEmail($username, $email)){
     			$user = User::findByUser($username);
     			$code = self::generateRandomString();
@@ -236,7 +235,6 @@ class UserController extends Controller
         return true;        
     } 
 
-    //saves image to image folder and returns the name of the file as it is saved in that folder
     static function saveImage() {
         if (! file_exists($_SERVER['DOCUMENT_ROOT'] . "/images/profilepics/")) {
             mkdir($_SERVER['DOCUMENT_ROOT'] . "/images/profilepics/");

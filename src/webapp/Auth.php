@@ -62,17 +62,11 @@ class Auth
     	}
     }
     
-    /**
-     * Check if is logged in.
-     */
     static function check()
     {
         return isset($_SESSION['user']);
     }
 
-    /**
-     * Check if the person is a guest.
-     */
     static function guest()
     {
         return self::check() === false;
@@ -92,10 +86,6 @@ class Auth
     	return null;
     }
 
-    /**
-     * Get currently logged in user.
-     */
-
     static function user()
     {
         if (self::check()) {
@@ -105,14 +95,10 @@ class Auth
         throw new \Exception('Not logged in but called Auth::user() anyway');
     }
 
-    /**
-     * Is currently logged in user admin?
-     */
     static function isAdmin()
     {
         if (self::check()) {
             return Auth::user()->isAdmin();
-            //return $_COOKIE['isadmin'] === 'yes';
         }
         throw new \Exception('Not logged in but called Auth::isAdmin() anyway');
     }
