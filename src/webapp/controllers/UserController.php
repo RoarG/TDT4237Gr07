@@ -125,7 +125,6 @@ class UserController extends Controller
     		$this->app->flash('info', 'You are already logged in as ' . $username);
     		$this->app->redirect('/');
     	}elseif(isset($user)){
-    		$code = self::generateRandomString();
     		$code = $user->getCode();
     		if(!isset($validation)){
     			$this->render('resetPass.twig', []);    		
