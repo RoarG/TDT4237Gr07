@@ -39,8 +39,9 @@ class AdminController extends Controller
                 } 
                 else {
                     $this->app->flash('info', "An error ocurred. Unable to delete user '$username'.");
-                    $this->app->redirect('/admin');
                 }
+                $this->app->redirect('/admin');
+
             }
             else {
                 $this->app->flash('info', 'You must be an administrator to delete users.');
