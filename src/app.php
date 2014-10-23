@@ -4,7 +4,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 $app = new \Slim\Slim([
     'templates.path' => __DIR__.'/webapp/templates/',
     'cookie.lifetime' => '2 minutes',
-    'debug' => true,
+    'debug' => false,
     'cookies.encrypt' => true,
     'cookies.secret_key' => 'mkdfsndkfhjeaadffgag',
     'cookies.cipher' => MCRYPT_RIJNDAEL_256,
@@ -37,6 +37,14 @@ $app->get('/', $ns . 'IndexController:index');
 $app->get('/login', $ns . 'LoginController:index');
 $app->post('/login', $ns . 'LoginController:login');
 
+//Forgot password form
+$app->get('/reset', $ns . 'UserController:forgot');
+$app->post('/reset', $ns . 'UserController:reset');
+
+$app->get('/reset/validate', $ns . 'UserController:validate');
+$app->post('/reset/validate', $ns . 'UserController:validate');
+$app->get('/reset/email', $ns . 'UserController:mail')->name('mail');
+
 // New user
 $app->get('/user/new', $ns . 'UserController:index')->name('newuser');
 $app->post('/user/new', $ns . 'UserController:create');
@@ -64,7 +72,7 @@ $app->get('/movies/:movieid', $ns . 'MovieController:show');
 $app->post('/movies/:movieid', $ns . 'MovieController:addReview');
 
 //Debug off
-$app->config('debug', true);
+$app->config('debug', false);
 
 // Cookie Lifetime
 $app->config('cookies.lifetime', '2 minutes');

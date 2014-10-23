@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<style type="text/css">
+	
+header{
+	height: 100px;
+	width: 95%;
+	background-color: #D8D8D8;
+	position: absolute;
+	padding-left: 5%;
+	padding-top: 10px;
+	top: 0;
+	left: 0;
+	white-space: normal;
+	line-height: 30px;
+	font-family: "Calibri", sans-serif;
+}
+section{
+	top: 130px;
+	font-size: 105%;
+	padding-left: 150px;
+	position: relative;
+	margin-right: auto;
+	margin-left: auto;
+	font-family: "Calibri", sans-serif;
+}
+		
+		</style>
+		<title> Validationcode e-mail</title>
+	</head>
+	<body>
+		<header>
+		From: noreply@moviereviews.com<br/>
+		Subject: <strong>Reset password</strong><br/>
+		To: {{email|escape}}
+		</header>
+
+		<section>
+		<h1>Reset password validation code</h1>
+			Your validation code to reset password for Movie Reviews is: <strong>{{code|escape}}</strong> <br/>
+
+		</section>
+
+
+	</body>
+</html>

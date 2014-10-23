@@ -29,12 +29,21 @@ class UserController extends Controller
     	$minpass = 8;
     	$maxpass = 25;
     	
-    	/*Dumt å skrive inn passordfeil her?*/
     	if(strlen($pass) < $minpass){
     		array_push($validationErrors, "Password too short. Min length is " . $minpass);
     	}
     	if(strlen($pass) > $maxpass){
     		array_push($validationErrors, " Password too long. Max length is " . $maxpass);
+    	}
+
+    	if (! preg_match ( '/[A-Za-z]/', $pass )) {
+    		array_push ( $validationErrors, 'Password must contain letters' );
+    	}
+    	if (! preg_match ( '/[0-9]/', $pass )) {
+    		array_push ( $validationErrors, 'Password must contain numbers' );
+    	}
+    	if (! preg_match ( '/[_\W]/', $pass )) {
+    		array_push ( $validationErrors, 'Password must contain special characters' );
     	}
     	
         return $validationErrors;
@@ -46,22 +55,14 @@ class UserController extends Controller
             $request = $this->app->request;
             $username = $request->post('user');
             $pass = $request->post('pass');
+            $email = $request->post('email');
 
-    {
-        $request = $this->app->request;
-        $username = $request->post('user');
-        $pass = $request->post('pass');
-
-        // Sanitize username field, but not password as the password is never included in an HTML, and the user should be able to set the password to whatever he or she wants.
-        $processedUsername = htmlspecialchars(strip_tags($username), ENT_QUOTES, 'UTF-8');
-
-        if ($username == $processedUsername) {
-            // Create user
             $hashed = Hash::make($pass);
 
             $user = User::makeEmpty();
             $user->setUsername($username);
             $user->setHash($hashed);
+            $user->setEmail($email);
 
             $validationError = User::validate($user);
             $validationError2 = self::validatePass($pass);
@@ -71,15 +72,6 @@ class UserController extends Controller
                 $errors = join("<br>\n", $result);
                 $this->app->flashNow('error', $errors);
                 $this->render('newUserForm.twig', ['username' => $username, 'token' => Auth::token()]);
-            
-            $validationError = User::validate($user);
-            $validationError2 = self::validatePass($pass);
-            $result = array_merge($validationError,$validationError2);
-            
-            if (sizeof($result) > 0) {
-                $errors = join("<br>\n", $result);
-                $this->app->flashNow('error', $errors);
-                $this->render('newUserForm.twig', ['username' => htmlspecialchars($username, ENT_QUOTES, 'UTF-8')]);
             } else {
                 $user->save();
                 $this->app->flash('info', 'Thanks for creating a user. Now log in.');
@@ -89,14 +81,110 @@ class UserController extends Controller
         else {
             $this->app->flash('error', 'This page has timed out, please try again!');
             $this->render('newUserForm.twig', ['token' => Auth::token()]);
-
-            // Return error
-            $errors = "A username cannot contain any HTML tags or special characters";
-            $this->app->flashNow('error', $errors);
-            $this->render('newUserForm.twig', ['username' => htmlspecialchars($username, ENT_QUOTES, 'UTF-8')]);
         }
     }
-            
+    
+    
+    function forgot(){
+    	if (Auth::check()) {
+    		$username = Auth::user()->getUserName();
+    		$this->app->flash('info', 'You are already logged in as ' . $username);
+    		$this->app->redirect('/');
+    	} else {
+    		$this->render('forgotPass.twig', []);
+    	}
+    }
+    
+    function reset(){
+    	$request = $this->app->request;
+    	$username = $request->post('user');
+    	$email = $request->post('email');
+    	 
+    	//Sett XSS test på dette!!
+    		if(Auth::checkEmail($username, $email)){
+    			$user = User::findByUser($username);
+    			$code = self::generateRandomString();
+    			$user->setCode($code);
+    			$user->save();
+    			$_SESSION['reset'] = $user->getUsername();
+    			$_SESSION['timeout'] = time();
+    			$this->app->redirect('/reset/validate');
+    		}else{
+    			$this->app->flashNow('error', 'Incorrect user/email combination.');
+    			$this->render('forgotPass.twig', []);
+    		}
+    }
+    
+    function validate(){
+    	$request = $this->app->request;
+    	$validation = $request->post('val');
+    	$newpass = $request->post('newpass');
+    	$user = Auth::resetPass();
+    	if (Auth::check()) {
+    		$username = Auth::user()->getUserName();
+    		$this->app->flash('info', 'You are already logged in as ' . $username);
+    		$this->app->redirect('/');
+    	}elseif(isset($user)){
+    		$code = $user->getCode();
+    		if(!isset($validation)){
+    			$this->render('resetPass.twig', []);    		
+    		}elseif(isset($_SESSION['timeout']) && (time() - $_SESSION['timeout'] > 600)){
+    			$user->setCode(null);
+    			$user->save();
+    			session_unset();
+    			session_destroy();
+    			$this->app->flash('info', 'Timeout');
+    			$this->app->redirect('/login');
+    		}elseif($validation === $code){
+    			$validationError = self::validatePass($newpass);
+    			$hashed = Hash::make($newpass);
+    			$user->setHash($hashed);
+    			if (sizeof($validationError) > 0) {
+    				$errors = join("<br>\n", $validationError);
+    				$this->app->flashNow('error', $errors);
+    				$this->render('resetPass.twig', []);
+    			} else {
+    				$user->setCode(null);
+    				$user->save();
+    				$this->app->flash('info', 'Your password has been reset. Now log in.');
+    				$this->app->redirect('/login');
+    				session_unset();
+    				session_destroy();
+    			}
+    		}else {
+    			$this->app->flashNow('error', 'Incorrect validationcode.');
+    			$this->render('resetPass.twig', []);
+    		}
+    	}else{
+    		$this->app->redirect('/');
+    	}
+    }
+    
+    function mail(){
+    	$user = Auth::resetPass();
+    	if (Auth::check()) {
+    		$username = Auth::user()->getUserName();
+    		$this->app->flash('info', 'You are already logged in as ' . $username);
+    		$this->app->redirect('/');
+    	}elseif(isset($user)){
+    		$email = $user->getEmail();
+    		$code = $user->getCode();
+    		$this->render('mail.twig',['code'=>$code, 'email' =>$email]);
+    	}else{
+    		$this->app->redirect('/');
+    	}
+    }
+    
+    function generateRandomString() {
+    	$length = 15;
+    	$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    	$randomString = '';
+    	for ($i = 0; $i < $length; $i++) {
+    		$randomString .= $characters[rand(0, strlen($characters) - 1)];
+    	}
+    	return $randomString;
+    }
+
     function all()
     {
         $users = User::all();
@@ -121,33 +209,31 @@ class UserController extends Controller
 
     static function validateImage() {
         $fileName = $_FILES['file']['name'];
-        $validFiletypes = array('jpg', 'jpeg', 'gif', 'png');
+        $validFiletypes = array('jpg', 'jpeg', 'gif', 'png', 'JPG', 'JPEG', 'GIF', 'PNG');
         $fileExtension = explode(".", $fileName);
 
-        if (substr_count($fileName, ".") > 1) {
-            return "The filename contains more than one .";
+        if ($_FILES['file']['size'] > 2000000) {
+            return "The file is too large.";
         }
 
-        if (! getimagesize($_FILES['file']['tmp_name'])[0]) {
-            return "The file is not an image.";
+        if (substr_count($fileName, ".") > 1) {
+            return "The filename contains more than one '.'";
         }
-        
-        $exists = false;
-        foreach ($validFiletypes as $filetype) {
-            if ($filetype == $fileExtension[1]) {
-                $exists = true;
-                break; 
-            }
-        }
-        if (! $exists) {
+
+        if (! in_array($fileExtension[1], $validFiletypes)) {
             return "The file is of an unsupported format.";
         }
 
-        if ($_FILES['file']['size'] > 10000000) {
-                return "The file is too large.";
+        if ($_FILES['file']['error']==0) {
+            if (! getimagesize($_FILES['file']['tmp_name'])[0]) {
+            return "The file is not an image.";
+            }
         }
-        
-        return true;
+        else {
+            return "Could not save file.";
+        }
+            
+        return true;        
     } 
 
     //saves image to image folder and returns the name of the file as it is saved in that folder
@@ -158,7 +244,7 @@ class UserController extends Controller
         $uploadedFilename = $_FILES['file']['name'];
         $exploded = explode(".", $uploadedFilename);
         $filetype = $exploded[1];
-        $filenameToSave = Auth::generatePseudoRandom(8) . "." . $filetype;
+        $filenameToSave = Auth::generatePseudoRandom(8) . "." . strtolower($filetype);
         $fileToSave = $_FILES['file']['tmp_name'];
         move_uploaded_file($fileToSave, $_SERVER['DOCUMENT_ROOT'] . "/images/profilepics/" . $filenameToSave);
         return $filenameToSave;
@@ -183,57 +269,50 @@ class UserController extends Controller
             throw new \Exception("Unable to fetch logged in user's object from db.");
         }
 
-        if ($this->app->request->isPost()) {
-            $request = $this->app->request;
-
-            $email = $request->post('email');
-            $bio = $request->post('bio');
-            $age = $request->post('age');
-
-            $user->setEmail($email);
-            $user->setBio($bio);
-            $user->setAge($age);
-
-            if (! User::validateAge($user)) {
-                $this->app->flashNow('error', 'Age must be between 0 and 150.');
-            } else {
-                $user->save();
-                $this->app->flashNow('info', 'Your profile was successfully saved.');
-
-            if (Auth::checkToken($request->post('CSRFToken'))) {
-                $email = $request->post('email');
-                $bio = $request->post('bio');
-                $age = $request->post('age');
-
-                $user->setEmail($email);
-                $user->setBio($bio);
-                $user->setAge($age);
-
-                if (! User::validateAge($user)) {
-                    $this->app->flashNow('error', 'Age must be between 0 and 150.');
-                } 
-                else {
-                    if ($_FILES['file']['name'] != null) {
-                        $response = UserController::validateImage();
-
-                        if ($response === true) {
-                            $imageUrl = self::saveImage();
-                            $user->setImageUrl($imageUrl);
-                        }
-                        else {
-                            $this->app->flashNow('error', $response);
-                        }     
+        $request = $this->app->request;
+        if ($request->isPost()) {
+            if ($request->post('uploaded')) {
+                $response = self::validateImage();
+                if ($response === true) {
+                    $url = self::saveImage();
+                    if ($user->getImageUrl()) {
+                        unlink($_SERVER['DOCUMENT_ROOT'] . "/images/profilepics/" . $user->getImageUrl());
                     }
+                    $user->setImageUrl($url);
                     $user->save();
-                    $this->app->flashNow('info', 'Your profile was successfully saved.');
+                    $this->app->flashNow('info', 'Your profile picture was saved.');    
+                }
+                else {
+                    $this->app->flashNow('error', $response);
+                }
+            }
+            elseif ($request->post('CSRFToken')) {
+                if (Auth::checkToken($request->post('CSRFToken'))) {
+                    
+                    $email = $request->post('email');
+                    $bio = $request->post('bio');
+                    $age = $request->post('age');
+
+                    $user->setEmail($email);
+                    $user->setBio($bio);
+                    $user->setAge($age);
+
+                    if (User::validateAge($user)) {
+                        $user->save();
+                        $this->app->flashNow('info', 'Your profile was successfully saved.');
+                    }
+                    else {
+                        $this->app->flashNow('error', 'Age must be between 0 and 150.');
+                    }   
+                }
+                else {
+                    $this->app->flashNow('error', 'The page has timed out, please try again.'); 
                 }
             }
             else {
-                $this->app->flashNow('error', "Something is not right, are you CSRF'ing?");
+                $this->app->flashNow('error', 'Could not save file.'); 
             }
         }
         $this->render('edituser.twig', array('user' => $user, 'token' => Auth::token()));
     }
 }
-
-

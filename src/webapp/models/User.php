@@ -4,9 +4,8 @@ namespace tdt4237\webapp\models;
 
 use tdt4237\webapp\Hash;
 
-class User
+class User 
 {
-    
     const MIN_USER_LENGTH = 3;
     const MAX_USER_LENGTH = 20;
 
@@ -18,6 +17,7 @@ class User
     protected $age;
     protected $isAdmin = 0;
     protected $imageUrl;
+    protected $temppass;
 
     static $app;
 
@@ -25,7 +25,7 @@ class User
     {
     }
 
-    static function make($id, $username, $hash, $email, $bio, $age, $isAdmin, $imageUrl)
+    static function make($id, $username, $hash, $email, $bio, $age, $isAdmin, $imageUrl, $temppass)
     {
         $user = new User();
         $user->id = $id;
@@ -36,6 +36,7 @@ class User
         $user->age = $age;
         $user->isAdmin = $isAdmin;
         $user->imageUrl = $imageUrl;
+        $user->temppass = $temppass;
 
         return $user;
     }
@@ -51,12 +52,12 @@ class User
     
     function save() {
         if ($this->id === null) {
-        	$stmt = self::$app->db->prepare("INSERT INTO users(user, pass, email, age, bio, isadmin, imageurl) VALUES(?, ?, ?, ?, ?, ?, ?)");
+        	$stmt = self::$app->db->prepare("INSERT INTO users(user, pass, email, age, bio, isadmin, imageurl, temppass) VALUES(?, ?, ?, ?, ?, ?, ?, ?)");
             $stmt->execute(array($this->user, $this->pass, $this->email, $this->age, $this->bio, $this->isAdmin, $this->imageUrl));
         }
         else {
-        	$stmt = self::$app->db->prepare("UPDATE users SET email=?, age=?, bio=?, isadmin=?, imageurl=? WHERE id=?");
-            $stmt->execute(array($this->email, $this->age, $this->bio, $this->isAdmin, $this->imageUrl, $this->id));
+        	$stmt = self::$app->db->prepare("UPDATE users SET email=?, age=?, pass=?, bio=?, isadmin=?, imageurl=?, temppass=? WHERE id=?");
+            $stmt->execute(array($this->email, $this->age, $this->pass, $this->bio, $this->isAdmin, $this->imageUrl, $this->temppass, $this->id));
         }
     }
 
@@ -88,6 +89,11 @@ class User
     function getAge()
     {
         return $this->age;
+    }
+    
+    function getCode()
+    {
+    	return $this->temppass;
     }
 
     function getImageUrl()
@@ -128,6 +134,11 @@ class User
     function setAge($age)
     {
         $this->age = $age;
+    }
+    
+    function setCode($code)
+    {
+    	$this->temppass = $code;
     }
 
     function setImageUrl($imageUrl) 
@@ -221,7 +232,8 @@ class User
             $row['bio'],
             $row['age'],
             $row['isadmin'],
-            $row['imageurl']
+            $row['imageurl'],
+        	$row['temppass']
         );
     }
 }

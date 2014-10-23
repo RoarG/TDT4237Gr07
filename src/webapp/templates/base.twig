@@ -22,8 +22,8 @@
         <div id="container">
             <div id="navbar">
                 {% if isLoggedIn %}
-                    <img src = "/images/profilepics/{{ profilePicUrl|raw }}" onError="this.onerror = null; this.src ='/images/profile-pic-placeholder.jpg'" height="70"> <br>
-                    Logged in as {{ loggedInUsername|raw }}.<br>
+                    <img src = "/images/profilepics/{{ profilePicUrl|escape }}" onError="this.onerror = null; this.src ='/images/profile-pic-placeholder.jpg'" height="70"> <br>
+                    Logged in as {{ loggedInUsername|escape }}.<br>
                     <a href="{{ urlFor('editprofile') }}">Edit profile</a> <br>
                     <a href="{{ urlFor('logout') }}">Log out</a> <br>
                 {% endif %}
@@ -42,7 +42,7 @@
             </div>
 
             <div id="content">
-                <div id="flashinfo">{{ flash.info|raw }}</div>
+                <div id="flashinfo">{{ flash.info|escape }}</div>
                 {% block content %}{% endblock %}
             </div>
         </div>

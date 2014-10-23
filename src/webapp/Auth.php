@@ -28,14 +28,10 @@ class Auth
     }
 
     static function checkToken($token) {
-        if ($token === $_SESSION['token']) {
+        if ($token == $_SESSION['token']) {
             return true;
         }
         return false;
-    }
-
-    static function logIP() {
-        return $_SERVER['REMOTE_ADDR'];
     }
 
     static function token() {
@@ -53,6 +49,19 @@ class Auth
         return $str;
     }
 
+    static function checkEmail($username, $email){
+    	$user = User::findByUser($username);
+    	
+    	if($user === null){
+    		return false;
+    	}else{
+    		if($user->getEmail() === $email){
+    			return true;
+    		}
+    		return false;
+    	}
+    }
+    
     /**
      * Check if is logged in.
      */
@@ -67,6 +76,20 @@ class Auth
     static function guest()
     {
         return self::check() === false;
+    }
+    
+    static function resetPass(){
+    	if(isset($_SESSION['reset'])){
+    		if(isset($_SESSION['timeout']) && (time() - $_SESSION['timeout'] > 600)){
+    			$user = User::findByUser($_SESSION['reset']);
+    			$user->setCode(null);
+    			session_unset();
+    			session_destroy();
+    			return null;
+    		}
+    		return User::findByUser($_SESSION['reset']);
+    	}
+    	return null;
     }
 
     /**
@@ -91,7 +114,6 @@ class Auth
             return Auth::user()->isAdmin();
             //return $_COOKIE['isadmin'] === 'yes';
         }
-
         throw new \Exception('Not logged in but called Auth::isAdmin() anyway');
     }
 

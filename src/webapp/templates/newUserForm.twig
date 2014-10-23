@@ -4,18 +4,26 @@
 
 <h2>New user</h2>
 
-<b>{{ flash.info|raw }}</b> <br />
+<b>{{ flash.info|escape }}</b> <br />
 <b>{{ flash.error|raw }}</b> <br />
 
 <form action="" method="POST">
 
 <label>Username: </label>
-<input type="text" name="user" value="{{ username|raw }}" placeholder="Letters and numbers only"> <br />
+<input type="text" name="user" value="{{ username|escape }}"> <br />
+
+<label>E-mail: </label>
+<input type="email" name="email" value="{{ email|escape }}"> <br />
+
 <label>Password: </label>
 <input type="password" name="pass"> <br />
+
 <input type="submit" name="submit" value="Create new user">
-<input type="hidden" name="CSRFToken" value="{{ token|raw }}">
-<p>Username must be between 3 - 20 characters and may only consist of letters and numbers<br/>
-Password must be between 8 - 25 characters and contain letters, numbers (and special characters?)</p>
+
+<input type="hidden" name="CSRFToken" value="{{ token|escape }}">
+
+<p>Username must be between 3 - 20 characters and may only consist of letters and numbers.<br/>
+Password must be between 8 - 25 characters and contain letters, numbers and special characters.</p>
+
 </form>
 {% endblock %}

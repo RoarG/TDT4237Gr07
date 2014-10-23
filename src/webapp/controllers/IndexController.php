@@ -16,13 +16,10 @@ class IndexController extends Controller
         $request = $this->app->request;
         $msg = $request->get('msg');
 
-        //Sanitize message
-        $msg = strip_tags($msg);
-
         $variables = [];
 
         if ($msg) {
-            $variables['flash']['info'] = htmlspecialchars($msg, ENT_QUOTES, 'UTF-8');
+            $variables['flash']['info'] = $msg;
         }
 
         $this->render('index.twig', $variables);

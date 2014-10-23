@@ -4,7 +4,7 @@
 
 <h2>Login</h2>
 
-{{ flash.error|raw }} <br />
+{{ flash.error|escape }} <br />
 
 <form action="" method="POST">
 
@@ -13,6 +13,8 @@
 <label>Password: </label>
 <input type="password" name="pass"> <br />
 <input type="submit" name="submit" value="Log in">
-<input type="hidden" name="CSRFToken" value="{{ token|raw }}">
+<input type="hidden" name="CSRFToken" value="{{ token|escape }}">
 </form>
+<p id="forgotPass"><a href="/reset">Forgot your password?</a></p>
+
 {% endblock %}

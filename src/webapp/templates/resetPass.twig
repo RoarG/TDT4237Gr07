@@ -1,0 +1,22 @@
+{% extends 'base.twig' %}
+
+{% block content %}
+
+<h2>Reset password</h2>
+
+{{ flash.error|raw }} <br />
+
+<form action="" method="POST">
+
+	<label>Validationcode: </label>
+	<input type="text" name="val"> <br />
+	<label>New password: </label>
+	<input type="password" name="newpass"> <br />
+<input type="submit" name="submit" value="Submit">
+</form>
+
+<p>Pretending that e-mail was sent sent: 
+<a href="{{ urlFor('mail') }}" target="_blank">Click here to see e-mail (E-mail will open in new tab)</a><br/>
+Timeout after 10 min.</p>
+
+{% endblock %}
