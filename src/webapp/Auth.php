@@ -114,7 +114,6 @@ class Auth
             return Auth::user()->isAdmin();
             //return $_COOKIE['isadmin'] === 'yes';
         }
-
         throw new \Exception('Not logged in but called Auth::isAdmin() anyway');
     }
 

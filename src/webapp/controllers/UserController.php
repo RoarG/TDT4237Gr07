@@ -314,37 +314,5 @@ class UserController extends Controller
             }
         }
         $this->render('edituser.twig', array('user' => $user, 'token' => Auth::token()));
-
-            // if (Auth::checkToken($request->post('CSRFToken'))) {
-            //     if ($_FILES['file']['name'] != null) {
-            //         $validated = self::validateImage();
-            //         if ($validated === true) {
-            //             $imageUrl = self::saveImage();
-            //             $user->setImageUrl($imageUrl);
-            //         }
-            //     } else {
-            //         $validated = true;
-            //     }
-            //     $email = $request->post('email');
-            //     $bio = $request->post('bio');
-            //     $age = $request->post('age');
-
-            //     $user->setEmail($email);
-            //     $user->setBio($bio);
-            //     $user->setAge($age);
-
-            //     $user->save();
-
-            //     if ($validated !== true) {
-            //         $this->app->flashNow('error', $validated);
-            //         $this->app->flashNow('info', "All information except the profile picture was saved.");
-            //     }
-            //     else {
-            //         $this->app->flashNow('info', "Your profile was successfully saved.");
-            //     }
-            // }
-            // else {
-            //     $this->app->flashNow('error', "Something went wrong. Please try again.");
-            // }
     }
 }
