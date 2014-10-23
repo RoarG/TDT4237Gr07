@@ -28,7 +28,7 @@ class Auth
     }
 
     static function checkToken($token) {
-        if ($token === $_SESSION['token']) {
+        if ($token == $_SESSION['token']) {
             return true;
         }
         return false;

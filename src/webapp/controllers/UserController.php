@@ -210,33 +210,31 @@ class UserController extends Controller
 
     static function validateImage() {
         $fileName = $_FILES['file']['name'];
-        $validFiletypes = array('jpg', 'jpeg', 'gif', 'png');
+        $validFiletypes = array('jpg', 'jpeg', 'gif', 'png', 'JPG', 'JPEG', 'GIF', 'PNG');
         $fileExtension = explode(".", $fileName);
 
-        if (substr_count($fileName, ".") > 1) {
-            return "The filename contains more than one .";
+        if ($_FILES['file']['size'] > 2000000) {
+            return "The file is too large.";
         }
 
-        if (! getimagesize($_FILES['file']['tmp_name'])[0]) {
-            return "The file is not an image.";
+        if (substr_count($fileName, ".") > 1) {
+            return "The filename contains more than one '.'";
         }
-        
-        $exists = false;
-        foreach ($validFiletypes as $filetype) {
-            if ($filetype == $fileExtension[1]) {
-                $exists = true;
-                break; 
-            }
-        }
-        if (! $exists) {
+
+        if (! in_array($fileExtension[1], $validFiletypes)) {
             return "The file is of an unsupported format.";
         }
 
-        if ($_FILES['file']['size'] > 10000000) {
-                return "The file is too large.";
+        if ($_FILES['file']['error']==0) {
+            if (! getimagesize($_FILES['file']['tmp_name'])[0]) {
+            return "The file is not an image.";
+            }
         }
-        
-        return true;
+        else {
+            return "Could not save file.";
+        }
+            
+        return true;        
     } 
 
     //saves image to image folder and returns the name of the file as it is saved in that folder
@@ -247,7 +245,7 @@ class UserController extends Controller
         $uploadedFilename = $_FILES['file']['name'];
         $exploded = explode(".", $uploadedFilename);
         $filetype = $exploded[1];
-        $filenameToSave = Auth::generatePseudoRandom(8) . "." . $filetype;
+        $filenameToSave = Auth::generatePseudoRandom(8) . "." . strtolower($filetype);
         $fileToSave = $_FILES['file']['tmp_name'];
         move_uploaded_file($fileToSave, $_SERVER['DOCUMENT_ROOT'] . "/images/profilepics/" . $filenameToSave);
         return $filenameToSave;
@@ -272,41 +270,82 @@ class UserController extends Controller
             throw new \Exception("Unable to fetch logged in user's object from db.");
         }
 
-        if ($this->app->request->isPost()) {
-            $request = $this->app->request;
-            if (Auth::checkToken($request->post('CSRFToken'))) {
-                $email = $request->post('email');
-                $bio = $request->post('bio');
-                $age = $request->post('age');
-
-                $user->setEmail($email);
-                $user->setBio($bio);
-                $user->setAge($age);
-
-                if (! User::validateAge($user)) {
-                    $this->app->flashNow('error', 'Age must be between 0 and 150.');
-                } 
-                else {
-                    if ($_FILES['file']['name'] != null) {
-                        $response = UserController::validateImage();
-
-                        if ($response === true) {
-                            $imageUrl = self::saveImage();
-                            $user->setImageUrl($imageUrl);
-                        }
-                        else {
-                            $this->app->flashNow('error', $response);
-                        }     
+        $request = $this->app->request;
+        if ($request->isPost()) {
+            if ($request->post('uploaded')) {
+                $response = self::validateImage();
+                if ($response === true) {
+                    $url = self::saveImage();
+                    if ($user->getImageUrl()) {
+                        unlink($_SERVER['DOCUMENT_ROOT'] . "/images/profilepics/" . $user->getImageUrl());
                     }
+                    $user->setImageUrl($url);
                     $user->save();
-                    $this->app->flashNow('info', 'Your profile was successfully saved.');
+                    $this->app->flashNow('info', 'Your profile picture was saved.');    
+                }
+                else {
+                    $this->app->flashNow('error', $response);
+                }
+            }
+            elseif ($request->post('CSRFToken')) {
+                if (Auth::checkToken($request->post('CSRFToken'))) {
+                    
+                    $email = $request->post('email');
+                    $bio = $request->post('bio');
+                    $age = $request->post('age');
+
+                    $user->setEmail($email);
+                    $user->setBio($bio);
+                    $user->setAge($age);
+
+                    if (User::validateAge($user)) {
+                        $user->save();
+                        $this->app->flashNow('info', 'Your profile was successfully saved.');
+                    }
+                    else {
+                        $this->app->flashNow('error', 'Age must be between 0 and 150.');
+                    }   
+                }
+                else {
+                    $this->app->flashNow('error', 'The page has timed out, please try again.'); 
                 }
             }
             else {
-                $this->app->flashNow('error', "This page has timed out, please try again!");
+                $this->app->flashNow('error', 'Could not save file.'); 
             }
         }
         $this->render('edituser.twig', array('user' => $user, 'token' => Auth::token()));
+
+            // if (Auth::checkToken($request->post('CSRFToken'))) {
+            //     if ($_FILES['file']['name'] != null) {
+            //         $validated = self::validateImage();
+            //         if ($validated === true) {
+            //             $imageUrl = self::saveImage();
+            //             $user->setImageUrl($imageUrl);
+            //         }
+            //     } else {
+            //         $validated = true;
+            //     }
+            //     $email = $request->post('email');
+            //     $bio = $request->post('bio');
+            //     $age = $request->post('age');
+
+            //     $user->setEmail($email);
+            //     $user->setBio($bio);
+            //     $user->setAge($age);
+
+            //     $user->save();
+
+            //     if ($validated !== true) {
+            //         $this->app->flashNow('error', $validated);
+            //         $this->app->flashNow('info', "All information except the profile picture was saved.");
+            //     }
+            //     else {
+            //         $this->app->flashNow('info', "Your profile was successfully saved.");
+            //     }
+            // }
+            // else {
+            //     $this->app->flashNow('error', "Something went wrong. Please try again.");
+            // }
     }
 }
-  

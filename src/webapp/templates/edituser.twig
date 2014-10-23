@@ -4,10 +4,10 @@
 
     <h2>Edit profile</h2>
 
-    <form enctype="multipart/form-data" action="" method="POST">
+    <form action="" method="POST">
         <div id="flasherror">{{ flash.error|escape }}</div>
 
-        <label>email:</label>
+        <label>Email:</label>
         <input type="text" name="email" value="{{ user.email|escape }}"> <br />
 
         <label>Bio:</label>
@@ -16,11 +16,18 @@
         <label>Age:</label>
         <input type="text" name="age" value="{{ user.age|escape }}"> <br />
 
+        <input type="hidden" name="CSRFToken" value="{{ token|escape }}">
+
+        <input type="submit" name="submit" value="Save profile" />
+    </form>
+
+    <form enctype="multipart/form-data" action="" method="POST">
         <label>Profile picture:</label>
         <input type="file" name="file"> <br />
+        <input type='hidden' name="uploaded" value="1"> 
 
-        <input type="hidden" name="CSRFToken" value="{{ token|escape }}"> <br />
-
-        <input type="submit" name="submit" value="Save profile">
+        <input type="submit" name="submit" value="Save profile picture">
     </form>
+    <p> Supported image formats are jpeg, jpg, png and gif. Maximum file size is 2 MB. </p>
+
 {% endblock %}

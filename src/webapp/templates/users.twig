@@ -14,6 +14,7 @@
             <tr>
                 <td>{{ user.id|escape }}</td>
                 <td><a href="/user/{{ user.username|escape }}">{{ user.username|escape }}</a></td>
+                <td><img src="/images/profilepics/{{ user.getImageUrl|escape }}" height="70">
             </tr>
         {% endfor %}
         </table>
