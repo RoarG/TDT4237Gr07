@@ -4,7 +4,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 $app = new \Slim\Slim([
     'templates.path' => __DIR__.'/webapp/templates/',
     'cookie.lifetime' => '2 minutes',
-    'debug' => false,
+    'debug' => true,
     'cookies.encrypt' => true,
     'cookies.secret_key' => 'mkdfsndkfhjeaadffgag',
     'cookies.cipher' => MCRYPT_RIJNDAEL_256,
@@ -72,7 +72,7 @@ $app->get('/movies/:movieid', $ns . 'MovieController:show');
 $app->post('/movies/:movieid', $ns . 'MovieController:addReview');
 
 //Debug off
-$app->config('debug', false);
+$app->config('debug', true);
 
 // Cookie Lifetime
 $app->config('cookies.lifetime', '2 minutes');

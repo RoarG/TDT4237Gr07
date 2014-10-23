@@ -271,7 +271,7 @@ class UserController extends Controller
 
         $request = $this->app->request;
         if ($request->isPost()) {
-            if ($request->post('uploaded')) {
+            if ($request->post('uploaded') && $_FILES['file']['name'] != "") {
                 $response = self::validateImage();
                 if ($response === true) {
                     $url = self::saveImage();
