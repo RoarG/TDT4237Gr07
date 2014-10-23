@@ -4,8 +4,13 @@
 
     <h2>Edit profile</h2>
 
+<<<<<<< HEAD
     <form action="" method="POST">
         <div id="flasherror">{{ flash.error|escape }}</div>
+=======
+    <form enctype="multipart/form-data" action="" method="POST">
+        <div id="flasherror">{{ flash.error|raw }}</div>
+>>>>>>> master
 
         <label>email:</label>
         <input type="text" name="email" value="{{ user.email|escape }}"> <br />
@@ -15,6 +20,11 @@
 
         <label>Age:</label>
         <input type="text" name="age" value="{{ user.age|escape }}"> <br />
+
+        <label>Profile picture:</label>
+        <input type="file" name="file"> <br />
+
+        <input type="hidden" name="CSRFToken" value="{{ token|raw }}"> <br />
 
         <input type="submit" name="submit" value="Save profile">
     </form>

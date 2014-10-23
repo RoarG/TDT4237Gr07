@@ -13,5 +13,6 @@
 <label>Password: </label>
 <input type="password" name="pass"> <br />
 <input type="submit" name="submit" value="Log in">
+<input type="hidden" name="CSRFToken" value="{{ token|raw }}">
 </form>
 {% endblock %}

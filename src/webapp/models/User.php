@@ -6,10 +6,7 @@ use tdt4237\webapp\Hash;
 
 class User
 {
-    const INSERT_QUERY = "INSERT INTO users(user, pass, email, age, bio, isadmin) VALUES('%s', '%s', '%s' , '%s' , '%s', '%s')";
-    const UPDATE_QUERY = "UPDATE users SET email='%s', age='%s', bio='%s', isadmin='%s' WHERE id='%s'";
-    const FIND_BY_NAME = "SELECT * FROM users WHERE user='%s'";
-
+    
     const MIN_USER_LENGTH = 3;
     const MAX_USER_LENGTH = 20;
 
@@ -20,6 +17,7 @@ class User
     protected $bio = 'Bio is empty.';
     protected $age;
     protected $isAdmin = 0;
+    protected $imageUrl;
 
     static $app;
 
@@ -27,7 +25,7 @@ class User
     {
     }
 
-    static function make($id, $username, $hash, $email, $bio, $age, $isAdmin)
+    static function make($id, $username, $hash, $email, $bio, $age, $isAdmin, $imageUrl)
     {
         $user = new User();
         $user->id = $id;
@@ -37,6 +35,7 @@ class User
         $user->bio = $bio;
         $user->age = $age;
         $user->isAdmin = $isAdmin;
+        $user->imageUrl = $imageUrl;
 
         return $user;
     }
@@ -49,28 +48,16 @@ class User
     /**
      * Insert or update a user object to db.
      */
-    function save()
-    {
+    
+    function save() {
         if ($this->id === null) {
-            $query = sprintf(self::INSERT_QUERY,
-                $this->user,
-                $this->pass,
-                $this->email,
-                $this->age,
-                $this->bio,
-                $this->isAdmin
-            );
-        } else {
-            $query = sprintf(self::UPDATE_QUERY,
-                $this->email,
-                $this->age,
-                $this->bio,
-                $this->isAdmin,
-                $this->id
-            );
+        	$stmt = self::$app->db->prepare("INSERT INTO users(user, pass, email, age, bio, isadmin, imageurl) VALUES(?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute(array($this->user, $this->pass, $this->email, $this->age, $this->bio, $this->isAdmin, $this->imageUrl));
         }
-
-        return self::$app->db->exec($query);
+        else {
+        	$stmt = self::$app->db->prepare("UPDATE users SET email=?, age=?, bio=?, isadmin=?, imageurl=? WHERE id=?");
+            $stmt->execute(array($this->email, $this->age, $this->bio, $this->isAdmin, $this->imageUrl, $this->id));
+        }
     }
 
     function getId()
@@ -101,6 +88,11 @@ class User
     function getAge()
     {
         return $this->age;
+    }
+
+    function getImageUrl()
+    {
+        return $this->imageUrl;
     }
 
     function isAdmin()
@@ -136,6 +128,11 @@ class User
     function setAge($age)
     {
         $this->age = $age;
+    }
+
+    function setImageUrl($imageUrl) 
+    {
+        $this->imageUrl = $imageUrl;
     }
 
     /**
@@ -182,29 +179,28 @@ class User
      * @return mixed User or null if not found.
      */
     static function findByUser($username)
-    {
-        $query = sprintf(self::FIND_BY_NAME, $username);
-        $result = self::$app->db->query($query, \PDO::FETCH_ASSOC);
-        $row = $result->fetch();
+    {   
+    	$stmt = self::$app->db->prepare("SELECT * FROM users WHERE user=?");
+        $stmt->execute(array($username));
+        $row = $stmt->fetch();
 
         if($row == false) {
             return null;
         }
-
         return User::makeFromSql($row);
     }
 
     static function deleteByUsername($username)
     {
-        $query = "DELETE FROM users WHERE user='$username' ";
-        return self::$app->db->exec($query);
+    	$stmt = self::$app->db->prepare("DELETE FROM users WHERE user=?");
+        return $stmt->execute(array($username));
     }
 
     static function all()
-    {
-        $query = "SELECT * FROM users";
-        $results = self::$app->db->query($query);
-
+    {	
+    	$stmt = self::$app->db->prepare("SELECT * FROM users");
+        $stmt->execute();
+        $results = $stmt->fetchAll();
         $users = [];
 
         foreach ($results as $row) {
@@ -224,7 +220,8 @@ class User
             $row['email'],
             $row['bio'],
             $row['age'],
-            $row['isadmin']
+            $row['isadmin'],
+            $row['imageurl']
         );
     }
 }

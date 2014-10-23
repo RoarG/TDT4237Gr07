@@ -24,6 +24,7 @@
 
             <textarea cols="40" rows="10" name="text"></textarea>
             <input type="submit" name="submit" value="Save review">
+            <input type="hidden" name="CSRFToken" value="{{ token|raw }}">
         </form>
     {% else %}
         Unable to find that movie.

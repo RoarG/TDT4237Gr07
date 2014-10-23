@@ -18,7 +18,13 @@ class Controller
             $variables['isLoggedIn'] = true;
             $variables['isAdmin'] = Auth::isAdmin();
             $variables['loggedInUsername'] = $_SESSION['user'];
+            $variables['profilePicUrl'] = UserController::getProfilePicUrl($_SESSION['user']);
         }
+
+        if (! isset($_SESSION['token'])) {
+            $_SESSION['token'] = Auth::generateToken();
+        }
+
 
         print $this->app->render($template, $variables);
     }

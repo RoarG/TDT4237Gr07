@@ -40,10 +40,9 @@ class Movie
      */
     static function find($id)
     {
-        $query = "SELECT * FROM movies WHERE id = $id";
-        $result = self::$app->db->query($query);
-
-        return self::makeFromRow($result->fetch());
+        $stmt = self::$app->db->prepare("SELECT * FROM movies WHERE id = ?");
+        $stmt->execute(array($id));
+        return self::makeFromRow($stmt->fetch());
     }
 
     /**
@@ -51,8 +50,9 @@ class Movie
      */
     static function all()
     {
-        $query = "SELECT * FROM movies";
-        $results = self::$app->db->query($query);
+        $stmt = self::$app->db->prepare("SELECT * FROM movies");
+        $stmt->execute();
+        $results = $stmt->fetchAll();
 
         $movies = [];
 
