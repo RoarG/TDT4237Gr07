@@ -31,13 +31,25 @@ class AdminController extends Controller
     }
 
     function delete($username)
-    {
-        if (User::deleteByUsername($username)) {
-            $this->app->flash('info', "Sucessfully deleted '$username'");
-        } else {
-            $this->app->flash('info', "An error ocurred. Unable to delete user '$username'.");
+    {   
+        if (Auth::check()) {
+            if (Auth::isAdmin()) {
+                if (User::deleteByUsername($username)) {
+                    $this->app->flash('info', "Sucessfully deleted '$username'");
+                } 
+                else {
+                    $this->app->flash('info', "An error ocurred. Unable to delete user '$username'.");
+                    $this->app->redirect('/admin');
+                }
+            }
+            else {
+                $this->app->flash('info', 'You must be an administrator to delete users.');
+                $this->app->redirect("/");
+            }
         }
-        
-        $this->app->redirect('/admin');
+        else {
+            $this->app->flash('info', 'You must be an administrator to delete users');
+            $this->app->redirect("/");
+        }
     }
 }
